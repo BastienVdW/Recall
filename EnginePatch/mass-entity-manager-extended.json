@@ -79,7 +79,7 @@
                 "\t\treturn Chunks[ChunkIndex].GetSharedFragmentValues();",
                 "\t}",
                 "",
-                "\tUE_API void AddEntityToChunk(FMassEntityHandle Entity, const FMassArchetypeSharedFragmentValues& SharedFragmentValues, int32 ChunkIndex);"
+                "\tMASSENTITY_API void AddEntityToChunk(FMassEntityHandle Entity, const FMassArchetypeSharedFragmentValues& SharedFragmentValues, int32 ChunkIndex);"
               ]
             }
           ]

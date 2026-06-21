@@ -21,6 +21,10 @@ struct RECALLSIMULATION_API FRecallGameplayTagFragment : public FMassFragment
 	FRecallGameplayTagCountMap GameplayTagCountMap;
 };
 
+template <>
+struct TMassFragmentTraits<FRecallGameplayTagFragment> final
+{ enum { AuthorAcceptsItsNotTriviallyCopyable = true }; };
+
 USTRUCT()
 struct RECALLSIMULATION_API FRecallGameplayTagsConstSharedFragment : public FMassConstSharedFragment
 {

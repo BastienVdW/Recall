@@ -55,6 +55,10 @@ struct FRecallActorRepresentationFragment : public FMassFragment
 	bool bHideActor = false;
 };
 
+template <>
+struct TMassFragmentTraits<FRecallActorRepresentationFragment> final
+{ enum { AuthorAcceptsItsNotTriviallyCopyable = true }; };
+
 USTRUCT()
 struct FRecallSkeletalMeshActorRepresentationConstSharedFragment : public FMassConstSharedFragment
 {

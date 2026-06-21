@@ -29,6 +29,10 @@ struct RECALLENTITYSTREAMING_API FRecallStreamableEntityFragment : public FMassF
 	FName SourceComponent = NAME_Name;
 };
 
+template <>
+struct TMassFragmentTraits<FRecallStreamableEntityFragment> final
+{ enum { AuthorAcceptsItsNotTriviallyCopyable = true }; };
+
 /**
  * Shared fragment to store streaming state that must be deterministic and rollback-safe
  */
