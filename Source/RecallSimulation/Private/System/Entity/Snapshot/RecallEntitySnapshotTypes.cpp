@@ -94,23 +94,23 @@ FMassArchetypeCompositionDescriptor FRecallArchetypeCompositionSnapshot::Get() c
 
 	for (const auto& FragmentType : FragmentTypes)
 	{
-		Composition.Fragments.Add(*FragmentType);
+		Composition.Fragments.Add(FragmentType);
 	}
 	for (const auto& TagType : TagTypes)
 	{
-		Composition.Tags.Add(*TagType);
+		Composition.Tags.Add(TagType);
 	}
 	for (const auto& ChunkFragmentType : ChunkFragmentTypes)
 	{
-		Composition.ChunkFragments.Add(*ChunkFragmentType);
+		Composition.ChunkFragments.Add(ChunkFragmentType);
 	}
 	for (const auto& SharedFragmentType : SharedFragmentTypes)
 	{
-		Composition.SharedFragments.Add(*SharedFragmentType);
+		Composition.SharedFragments.Add(SharedFragmentType);
 	}
 	for (const auto& ConstSharedFragmentType : ConstSharedFragmentTypes)
 	{
-		Composition.ConstSharedFragments.Add(*ConstSharedFragmentType);
+		Composition.ConstSharedFragments.Add(ConstSharedFragmentType);
 	}
 
 	return Composition;

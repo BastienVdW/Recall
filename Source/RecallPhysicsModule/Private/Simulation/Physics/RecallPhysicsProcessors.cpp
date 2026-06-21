@@ -53,7 +53,7 @@ void URecallPhysicsInitializerProcessor::InitializeInternal(UObject& Owner, cons
 void URecallPhysicsInitializerProcessor::ConfigureQueries(const TSharedRef<FMassEntityManager>& EntityManager)
 {
 	FMassTagBitSet InvalidTags;
-	InvalidTags.Add(*FRecallPhysicsBodyInitializedTransformTag::StaticStruct());
+	InvalidTags.Add(FRecallPhysicsBodyInitializedTransformTag::StaticStruct());
 
 	EntityQuery.AddRequirement<FRecallTransformFragment>(EMassFragmentAccess::ReadOnly);
 	EntityQuery.AddRequirement<FRecallPhysicsBodyFragment>(EMassFragmentAccess::ReadOnly);
@@ -256,10 +256,10 @@ void URecallPhysicsCopyLocationProcessor::InitializeInternal(UObject& Owner, con
 void URecallPhysicsCopyLocationProcessor::ConfigureQueries(const TSharedRef<FMassEntityManager>& EntityManager)
 {
 	FMassTagBitSet InvalidTags;
-	InvalidTags.Add(*FRecallPhysicsStaticColliderTag::StaticStruct());
+	InvalidTags.Add(FRecallPhysicsStaticColliderTag::StaticStruct());
 
 	FMassTagBitSet RequiredTags;
-	RequiredTags.Add(*FRecallPhysicsBodyInitializedTransformTag::StaticStruct());
+	RequiredTags.Add(FRecallPhysicsBodyInitializedTransformTag::StaticStruct());
 
 	EntityQuery.AddRequirement<FRecallPhysicsBodyFragment>(EMassFragmentAccess::ReadOnly);
 	EntityQuery.AddRequirement<FRecallTransformFragment>(EMassFragmentAccess::ReadWrite);
@@ -374,11 +374,11 @@ bool URecallPhysicsGeneratesHitEventProcessor::ShouldAllowQueryBasedPruning(cons
 void URecallPhysicsGeneratesHitEventProcessor::ConfigureQueries(const TSharedRef<FMassEntityManager>& EntityManager)
 {
 	FMassTagBitSet RequiredTags;
-	RequiredTags.Add(*FRecallPhysicsBodyInitializedTransformTag::StaticStruct());
+	RequiredTags.Add(FRecallPhysicsBodyInitializedTransformTag::StaticStruct());
 
 	FMassTagBitSet ValidTags;
-	ValidTags.Add(*FRecallPhysicsGeneratesHitEventTag::StaticStruct());
-	ValidTags.Add(*FRecallPhysicsSensorTag::StaticStruct());
+	ValidTags.Add(FRecallPhysicsGeneratesHitEventTag::StaticStruct());
+	ValidTags.Add(FRecallPhysicsSensorTag::StaticStruct());
 
 	EntityQuery.AddRequirement<FRecallPhysicsBodyFragment>(EMassFragmentAccess::ReadOnly);
 	EntityQuery.AddRequirement<FRecallSensorFragment>(EMassFragmentAccess::ReadOnly, EMassFragmentPresence::Optional);
