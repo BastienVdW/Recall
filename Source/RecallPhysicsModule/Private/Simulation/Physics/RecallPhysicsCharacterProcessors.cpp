@@ -24,7 +24,7 @@ URecallCharacterFragmentConstructor::URecallCharacterFragmentConstructor()
 	: EntityQuery(*this)
 {
 	ExecutionFlags = static_cast<int32>(EProcessorExecutionFlags::All);
-	ObservedType = FRecallPhysicsCharacterFragment::StaticStruct();
+	ObservedTypes.Add(FRecallPhysicsCharacterFragment::StaticStruct());
 	Operation = EMassObservedOperation::Add;
 }
 
@@ -141,7 +141,7 @@ URecallCharacterVirtualFragmentConstructor::URecallCharacterVirtualFragmentConst
 	: EntityQuery(*this)
 {
 	ExecutionFlags = static_cast<int32>(EProcessorExecutionFlags::All);
-	ObservedType = FRecallPhysicsCharacterFragment::StaticStruct();
+	ObservedTypes.Add(FRecallPhysicsCharacterFragment::StaticStruct());
 	Operation = EMassObservedOperation::Add;
 }
 

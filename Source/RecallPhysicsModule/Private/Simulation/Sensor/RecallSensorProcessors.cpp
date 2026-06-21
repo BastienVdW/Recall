@@ -24,7 +24,7 @@ URecallSensorDestructor::URecallSensorDestructor()
 	: EntityQuery(*this)
 {
 	ExecutionFlags = (int32)EProcessorExecutionFlags::All;
-	ObservedType = FRecallSensorFragment::StaticStruct();
+	ObservedTypes.Add(FRecallSensorFragment::StaticStruct());
 	Operation = EMassObservedOperation::Remove;
 }
 

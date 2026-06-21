@@ -25,7 +25,7 @@ URecallPlayerCameraConstructor::URecallPlayerCameraConstructor()
 	: EntityQuery(*this)
 {
 	ExecutionFlags = static_cast<int32>(EProcessorExecutionFlags::All);
-	ObservedType = FRecallPlayerCameraFragment::StaticStruct();
+	ObservedTypes.Add(FRecallPlayerCameraFragment::StaticStruct());
 	Operation = EMassObservedOperation::Add;
 }
 
@@ -72,7 +72,7 @@ URecallPlayerCameraDestructor::URecallPlayerCameraDestructor()
 	: EntityQuery(*this)
 {
 	ExecutionFlags = static_cast<int32>(EProcessorExecutionFlags::All);
-	ObservedType = FRecallPlayerCameraFragment::StaticStruct();
+	ObservedTypes.Add(FRecallPlayerCameraFragment::StaticStruct());
 	Operation = EMassObservedOperation::Remove;
 }
 

@@ -21,7 +21,7 @@ URecallVehicleShapeFragmentConstructor::URecallVehicleShapeFragmentConstructor()
 	: EntityQuery(*this)
 {
 	ExecutionFlags = static_cast<int32>(EProcessorExecutionFlags::All);
-	ObservedType = FRecallPhysicsBodyFragment::StaticStruct();
+	ObservedTypes.Add(FRecallPhysicsBodyFragment::StaticStruct());
 	Operation = EMassObservedOperation::Add;
 }
 

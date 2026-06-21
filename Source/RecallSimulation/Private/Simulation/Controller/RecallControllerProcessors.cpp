@@ -33,7 +33,7 @@ URecallControllerInitializer::URecallControllerInitializer()
 	: EntityQuery(*this)
 {
 	ExecutionFlags = static_cast<int32>(EProcessorExecutionFlags::All);
-	ObservedType = FRecallControllerFragment::StaticStruct();
+	ObservedTypes.Add(FRecallControllerFragment::StaticStruct());
 	Operation = EMassObservedOperation::Add;
 }
 
@@ -205,7 +205,7 @@ URecallControllerDeinitializer::URecallControllerDeinitializer()
 	: EntityQuery(*this)
 {
 	ExecutionFlags = static_cast<int32>(EProcessorExecutionFlags::All);
-	ObservedType = FRecallControllerFragment::StaticStruct();
+	ObservedTypes.Add(FRecallControllerFragment::StaticStruct());
 	Operation = EMassObservedOperation::Remove;
 }
 

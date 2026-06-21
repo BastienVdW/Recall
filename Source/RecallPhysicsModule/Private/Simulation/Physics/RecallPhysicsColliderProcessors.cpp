@@ -23,7 +23,7 @@ URecallBodyFragmentDestructor::URecallBodyFragmentDestructor()
 	: EntityQuery(*this)
 {
 	ExecutionFlags = static_cast<int32>(EProcessorExecutionFlags::All);
-	ObservedType = FRecallPhysicsBodyFragment::StaticStruct();
+	ObservedTypes.Add(FRecallPhysicsBodyFragment::StaticStruct());
 	Operation = EMassObservedOperation::Remove;
 }
 
@@ -67,7 +67,7 @@ URecallBoxShapeFragmentConstructor::URecallBoxShapeFragmentConstructor()
 	: EntityQuery(*this)
 {
 	ExecutionFlags = static_cast<int32>(EProcessorExecutionFlags::All);
-	ObservedType = FRecallPhysicsBodyFragment::StaticStruct();
+	ObservedTypes.Add(FRecallPhysicsBodyFragment::StaticStruct());
 	Operation = EMassObservedOperation::Add;
 }
 
@@ -116,7 +116,7 @@ URecallSphereShapeFragmentConstructor::URecallSphereShapeFragmentConstructor()
 	: EntityQuery(*this)
 {
 	ExecutionFlags = static_cast<int32>(EProcessorExecutionFlags::All);
-	ObservedType = FRecallPhysicsBodyFragment::StaticStruct();
+	ObservedTypes.Add(FRecallPhysicsBodyFragment::StaticStruct());
 	Operation = EMassObservedOperation::Add;
 }
 
@@ -165,7 +165,7 @@ URecallCapsuleShapeFragmentConstructor::URecallCapsuleShapeFragmentConstructor()
 	: EntityQuery(*this)
 {
 	ExecutionFlags = (int32)EProcessorExecutionFlags::All;
-	ObservedType = FRecallPhysicsBodyFragment::StaticStruct();
+	ObservedTypes.Add(FRecallPhysicsBodyFragment::StaticStruct());
 	Operation = EMassObservedOperation::Add;
 }
 

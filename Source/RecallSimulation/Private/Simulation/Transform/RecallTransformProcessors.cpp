@@ -19,7 +19,7 @@ URecallTransformConstructor::URecallTransformConstructor()
 	: EntityQuery(*this)
 {
 	ExecutionFlags = static_cast<int32>(EProcessorExecutionFlags::All);
-	ObservedType = FRecallTransformFragment::StaticStruct();
+	ObservedTypes.Add(FRecallTransformFragment::StaticStruct());
 	Operation = EMassObservedOperation::Add;
 }
 
@@ -71,7 +71,7 @@ URecallTransformDestructor::URecallTransformDestructor()
 	: EntityQuery(*this)
 {
 	ExecutionFlags = static_cast<int32>(EProcessorExecutionFlags::All);
-	ObservedType = FRecallTransformFragment::StaticStruct();
+	ObservedTypes.Add(FRecallTransformFragment::StaticStruct());
 	Operation = EMassObservedOperation::Remove;
 }
 
