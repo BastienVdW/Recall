@@ -34,7 +34,7 @@ URecallControllerInitializer::URecallControllerInitializer()
 {
 	ExecutionFlags = static_cast<int32>(EProcessorExecutionFlags::All);
 	ObservedTypes.Add(FRecallControllerFragment::StaticStruct());
-	ObservedOperations.Add(EMassObservedOperation::Add);
+	ObservedOperations = EMassObservedOperationFlags::AddElement;
 }
 
 void URecallControllerInitializer::InitializeInternal(UObject& Owner, const TSharedRef<FMassEntityManager>& InEntityManager)
@@ -206,7 +206,7 @@ URecallControllerDeinitializer::URecallControllerDeinitializer()
 {
 	ExecutionFlags = static_cast<int32>(EProcessorExecutionFlags::All);
 	ObservedTypes.Add(FRecallControllerFragment::StaticStruct());
-	ObservedOperations.Add(EMassObservedOperation::Remove);
+	ObservedOperations = EMassObservedOperationFlags::RemoveElement;
 }
 
 void URecallControllerDeinitializer::InitializeInternal(UObject& Owner, const TSharedRef<FMassEntityManager>& InEntityManager)

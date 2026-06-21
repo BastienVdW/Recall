@@ -25,7 +25,7 @@ URecallCharacterFragmentConstructor::URecallCharacterFragmentConstructor()
 {
 	ExecutionFlags = static_cast<int32>(EProcessorExecutionFlags::All);
 	ObservedTypes.Add(FRecallPhysicsCharacterFragment::StaticStruct());
-	ObservedOperations.Add(EMassObservedOperation::Add);
+	ObservedOperations = EMassObservedOperationFlags::AddElement;
 }
 
 void URecallCharacterFragmentConstructor::InitializeInternal(UObject& Owner,
@@ -142,7 +142,7 @@ URecallCharacterVirtualFragmentConstructor::URecallCharacterVirtualFragmentConst
 {
 	ExecutionFlags = static_cast<int32>(EProcessorExecutionFlags::All);
 	ObservedTypes.Add(FRecallPhysicsCharacterFragment::StaticStruct());
-	ObservedOperations.Add(EMassObservedOperation::Add);
+	ObservedOperations = EMassObservedOperationFlags::AddElement;
 }
 
 void URecallCharacterVirtualFragmentConstructor::InitializeInternal(UObject& Owner,

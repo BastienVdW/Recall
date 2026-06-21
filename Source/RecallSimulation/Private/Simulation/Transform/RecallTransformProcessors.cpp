@@ -20,7 +20,7 @@ URecallTransformConstructor::URecallTransformConstructor()
 {
 	ExecutionFlags = static_cast<int32>(EProcessorExecutionFlags::All);
 	ObservedTypes.Add(FRecallTransformFragment::StaticStruct());
-	ObservedOperations.Add(EMassObservedOperation::Add);
+	ObservedOperations = EMassObservedOperationFlags::AddElement;
 }
 
 void URecallTransformConstructor::InitializeInternal(UObject& Owner, const TSharedRef<FMassEntityManager>& InEntityManager)
@@ -72,7 +72,7 @@ URecallTransformDestructor::URecallTransformDestructor()
 {
 	ExecutionFlags = static_cast<int32>(EProcessorExecutionFlags::All);
 	ObservedTypes.Add(FRecallTransformFragment::StaticStruct());
-	ObservedOperations.Add(EMassObservedOperation::Remove);
+	ObservedOperations = EMassObservedOperationFlags::RemoveElement;
 }
 
 void URecallTransformDestructor::InitializeInternal(UObject& Owner, const TSharedRef<FMassEntityManager>& InEntityManager)
