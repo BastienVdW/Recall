@@ -1,0 +1,36 @@
+{
+  "patchId": "statetree-instance-storage-unique-id",
+  "description": "Expose FStateTreeInstanceStorage unique id generator accessors for snapshot/restore",
+  "plugin": "Recall",
+  "versions": [
+    {
+      "engineVersions": ["5.8"],
+      "files": [
+        {
+          "file": "Plugins/Runtime/StateTree/Source/StateTreeModule/Public/StateTreeInstanceData.h",
+          "operations": [
+            {
+              "id": "add-unique-id-accessors",
+              "line": 356,
+              "remove": [],
+              "add": [
+                "",
+                "\t/** @return current value of the unique id generator (for snapshot/restore). */",
+                "\tuint32 GetUniqueIdGenerator() const",
+                "\t{",
+                "\t\treturn UniqueIdGenerator;",
+                "\t}",
+                "",
+                "\t/** Sets the unique id generator (for snapshot/restore). */",
+                "\tvoid SetUniqueIdGenerator(const uint32 InUniqueIdGenerator)",
+                "\t{",
+                "\t\tUniqueIdGenerator = InUniqueIdGenerator;",
+                "\t}"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
