@@ -60,7 +60,7 @@ void FRecallStateTreeActiveFrameSnapshot::Save(const FStateTreeExecutionFrame& A
 		}
 	}
 
-	NumCurrentlyActiveStates = ActiveFrame.NumCurrentlyActiveStates;
+	NumCurrentlyActiveStates = ActiveFrame.ActiveStates.NumStates;
 	ActiveTasksStatus = ActiveFrame.ActiveTasksStatus;
 	
 	ActiveStates.Save(ActiveFrame.ActiveStates, UniqueIdGenerator);
@@ -76,7 +76,7 @@ void FRecallStateTreeActiveFrameSnapshot::Restore(FStateTreeExecutionFrame& Acti
 	}
 
 	ActiveFrame.FrameID = UE::StateTree::FActiveFrameID(FrameID);
-	ActiveFrame.NumCurrentlyActiveStates = NumCurrentlyActiveStates;
+	ActiveFrame.ActiveStates.NumStates = NumCurrentlyActiveStates;
 	ActiveFrame.ActiveTasksStatus = ActiveTasksStatus;
 	
 	ActiveStates.Restore(ActiveFrame.ActiveStates);
@@ -130,7 +130,7 @@ void FRecallStateTreeInstanceDataArraySnapshot::Restore(UObject& InOwner, FRecal
 	FObjectAndNameAsStringProxyArchive Ar(MemoryReader, false);
 	InstancedPropertyBag.Serialize(Ar);
 
-	Item.InstanceData.GetMutableStorage().SetGlobalParameters(InstancedPropertyBag);
+	Item.InstanceData.GetMutableStorage().SetGlobalParameters(InstancedPropertyBag.GetValue());
 }
 
 void FRecallStateTreeInstanceDataArraySnapshot::Save(const FRecallStateTreeInstanceDataItem& Item)
