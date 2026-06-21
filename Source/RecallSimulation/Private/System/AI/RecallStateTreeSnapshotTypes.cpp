@@ -102,8 +102,7 @@ void FRecallStateTreeInstanceDataArraySnapshot::Restore(UObject& InOwner, FRecal
 	Item.InstanceData.Init(InOwner, DestStructs);
 	Item.InstanceData.GetMutableStorage().GetMutableExecutionState() = ExecutionState;
 
-	FRecallStateTreeInstanceStorageWrapper& InstanceStorageWrapper = *(FRecallStateTreeInstanceStorageWrapper*)(const void*)&Item.InstanceData.GetMutableStorage();
-	InstanceStorageWrapper.SetUniqueIdGenerator(UniqueIdGenerator);
+	Item.InstanceData.GetMutableStorage().SetUniqueIdGenerator(UniqueIdGenerator);
 	
 	for (int32 ActiveFrameIndex = 0; ActiveFrameIndex < ActiveFrames.Num(); ActiveFrameIndex++)
 	{
@@ -150,8 +149,7 @@ void FRecallStateTreeInstanceDataArraySnapshot::Save(const FRecallStateTreeInsta
 
 	ExecutionState = Item.InstanceData.GetStorage().GetExecutionState();
 
-	const FRecallStateTreeInstanceStorageWrapper& InstanceStorageWrapper = *(const FRecallStateTreeInstanceStorageWrapper*)(const void*)&Item.InstanceData.GetStorage();
-	UniqueIdGenerator = InstanceStorageWrapper.GetUniqueIdGenerator();
+	UniqueIdGenerator = Item.InstanceData.GetStorage().GetUniqueIdGenerator();
 	
 	ActiveFrames.SetNum(ExecutionState.ActiveFrames.Num());
 

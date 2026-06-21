@@ -22,15 +22,6 @@ struct FRecallInstancedPropertyBagWrapper : public FInstancedPropertyBag
 };
 
 USTRUCT()
-struct FRecallStateTreeInstanceStorageWrapper : public FStateTreeInstanceStorage
-{
-	GENERATED_BODY()
-
-	uint32 GetUniqueIdGenerator() const { return UniqueIdGenerator; }
-	void SetUniqueIdGenerator(uint32 UniqueId) { UniqueIdGenerator = UniqueId; }
-};
-
-USTRUCT()
 struct FRecallStateTreeActiveStatesSnapshot
 {
 	GENERATED_BODY()

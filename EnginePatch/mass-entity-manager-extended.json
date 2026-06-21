@@ -1,6 +1,6 @@
 {
   "patchId": "mass-entity-manager-extended",
-  "description": "Add snapshot/restore methods to FMassEntityManager: DestroyAllEntities, RestoreEntitySerialNumber, GetEntityData, SetSharedFragments, ResetAllSharedFragments, GetSharedFragmentValuesMap, hash accessors, archetype chunk methods, BuildEntity and DestroyEntity overloads",
+  "description": "Add snapshot/restore methods to FMassEntityManager: DestroyEntity(bSignalObservers), BuildEntity(ChunkIndex), DestroyAllEntities, RestoreEntitySerialNumber, GetEntityData, shared fragment value map/hash/reset helpers, and archetype chunk accessors",
   "plugin": "Recall",
   "versions": [
     {
@@ -11,7 +11,7 @@
           "operations": [
             {
               "id": "iface-restore-serial",
-              "line": 135,
+              "line": 132,
               "remove": [],
               "add": [
                 "\t\tvirtual void RestoreEntitySerialNumber(FMassEntityHandle& Entity, int32 SerialNumber) = 0;"
@@ -19,7 +19,7 @@
             },
             {
               "id": "single-threaded-restore-serial",
-              "line": 179,
+              "line": 171,
               "remove": [],
               "add": [
                 "\t\tvirtual void RestoreEntitySerialNumber(FMassEntityHandle& Entity, int32 SerialNumber) override;"
@@ -27,7 +27,7 @@
             },
             {
               "id": "concurrent-restore-serial",
-              "line": 247,
+              "line": 235,
               "remove": [],
               "add": [
                 "\t\tvirtual void RestoreEntitySerialNumber(FMassEntityHandle& Entity, int32 SerialNumber) override;"
@@ -40,7 +40,7 @@
           "operations": [
             {
               "id": "single-threaded-restore-serial-impl",
-              "line": 238,
+              "line": 226,
               "remove": [],
               "add": [
                 "",
@@ -54,7 +54,7 @@
             },
             {
               "id": "concurrent-restore-serial-impl",
-              "line": 652,
+              "line": 628,
               "remove": [],
               "add": [
                 "",
@@ -70,7 +70,7 @@
           "file": "Runtime/MassEntity/Internal/MassArchetypeData.h",
           "operations": [
             {
-              "id": "add-chunk-shared-fragment-values",
+              "id": "add-chunk-methods",
               "line": 473,
               "remove": [],
               "add": [
@@ -89,41 +89,36 @@
           "operations": [
             {
               "id": "add-entity-to-chunk-impl",
-              "line": 386,
+              "line": 385,
               "remove": [],
               "add": [
                 "",
                 "void FMassArchetypeData::AddEntityToChunk(FMassEntityHandle Entity, const FMassArchetypeSharedFragmentValues& SharedFragmentValues, int32 ChunkIndex)",
                 "{",
+                "\tif (ChunkIndex == INDEX_NONE || !Chunks.IsValidIndex(ChunkIndex))",
+                "\t{",
+                "\t\tAddEntity(Entity, SharedFragmentValues);",
+                "\t\treturn;",
+                "\t}",
+                "",
                 "\t++ArchetypeVersion;",
                 "",
-                "\tint32 IndexWithinChunk = 0;",
-                "\tint32 AbsoluteIndex = 0;",
-                "\tFMassArchetypeChunk* DestinationChunk = nullptr;",
-                "",
-                "\tif (ChunkIndex != INDEX_NONE && ChunkIndex < Chunks.Num())",
+                "\tFMassArchetypeChunk& DestinationChunk = Chunks[ChunkIndex];",
+                "\tif (DestinationChunk.GetNumInstances() == 0)",
                 "\t{",
-                "\t\tDestinationChunk = &Chunks[ChunkIndex];",
-                "\t\tif (DestinationChunk->GetNumInstances() == 0)",
-                "\t\t{",
-                "\t\t\tDestinationChunk->Recycle(ChunkFragmentsTemplate, SharedFragmentValues);",
-                "\t\t}",
-                "\t\tIndexWithinChunk = DestinationChunk->GetNumInstances();",
-                "\t\tAbsoluteIndex = ChunkIndex * NumEntitiesPerChunk + IndexWithinChunk;",
-                "\t}",
-                "\telse",
-                "\t{",
-                "\t\tDestinationChunk = &GetOrAddChunk(SharedFragmentValues, AbsoluteIndex, IndexWithinChunk);",
+                "\t\tDestinationChunk.Recycle(ChunkFragmentsTemplate, SharedFragmentValues);",
                 "\t}",
                 "",
-                "\tDestinationChunk->AddInstance();",
+                "\tconst int32 IndexWithinChunk = DestinationChunk.GetNumInstances();",
+                "\tconst int32 AbsoluteIndex = ChunkIndex * NumEntitiesPerChunk + IndexWithinChunk;",
+                "",
+                "\tDestinationChunk.AddInstance();",
                 "\tEntityMap.Add(Entity.Index, AbsoluteIndex);",
-                "\tDestinationChunk->GetEntityArrayElementRef(EntityListOffsetWithinChunk, IndexWithinChunk) = Entity;",
+                "\tDestinationChunk.GetEntityArrayElementRef(EntityListOffsetWithinChunk, IndexWithinChunk) = Entity;",
                 "",
-                "\t// Initialize fragments",
                 "\tfor (const FMassArchetypeFragmentConfig& FragmentConfig : FragmentConfigs)",
                 "\t{",
-                "\t\tvoid* FragmentPtr = FragmentConfig.GetFragmentData(DestinationChunk->GetRawMemory(), IndexWithinChunk);",
+                "\t\tvoid* FragmentPtr = FragmentConfig.GetFragmentData(DestinationChunk.GetRawMemory(), IndexWithinChunk);",
                 "\t\tFragmentConfig.FragmentType->InitializeStruct(FragmentPtr);",
                 "\t}",
                 "}"
@@ -135,25 +130,8 @@
           "file": "Runtime/MassEntity/Public/MassEntityManager.h",
           "operations": [
             {
-              "id": "container-hash-map-getter",
-              "line": 1582,
-              "remove": [],
-              "add": [
-                "",
-                "\t\tTArrayView<const TSharedStructType> GetAllInstances() const",
-                "\t\t{",
-                "\t\t\treturn Instances;",
-                "\t\t}",
-                "",
-                "\t\tconst TMultiMap<uint32, int32>& GetHashToInstanceIndexMap() const",
-                "\t\t{",
-                "\t\t\treturn HashToInstanceIndexMap;",
-                "\t\t}"
-              ]
-            },
-            {
               "id": "entity-manager-extended-methods",
-              "line": 934,
+              "line": 929,
               "remove": [],
               "add": [
                 "\tMASSENTITY_API void DestroyEntity(FMassEntityHandle Entity, bool bSignalObservers);",
@@ -166,11 +144,33 @@
                 "\tMASSENTITY_API void ResetAllSharedFragments();",
                 "\tMASSENTITY_API uint32 GetSharedFragmentHashChecked(const FSharedStruct& SharedFragment) const;",
                 "\tMASSENTITY_API uint32 GetConstSharedFragmentHashChecked(const FConstSharedStruct& ConstSharedFragment) const;",
-                "\tMASSENTITY_API const FSharedStruct& GetSharedFragmentByHashChecked(const uint32 Hash) const;",
-                "\tMASSENTITY_API const FConstSharedStruct& GetConstSharedFragmentByHashChecked(const uint32 Hash) const;",
+                "\tMASSENTITY_API const FSharedStruct& GetSharedFragmentByHashChecked(uint32 Hash) const;",
+                "\tMASSENTITY_API const FConstSharedStruct& GetConstSharedFragmentByHashChecked(uint32 Hash) const;",
                 "\tMASSENTITY_API int32 GetArchetypeChunkCount(const FMassArchetypeHandle& ArchetypeHandle) const;",
                 "\tMASSENTITY_API const FMassArchetypeSharedFragmentValues& GetArchetypeSharedFragmentValues(const FMassArchetypeHandle& ArchetypeHandle, int32 ChunkIndex) const;",
                 "\tMASSENTITY_API void GetArchetypeInternalIndexForEntity(const FMassEntityHandle& Entity, const FMassArchetypeHandle& ArchetypeHandle, int32& OutAbsoluteIndex, int32& OutChunkIndex) const;"
+              ]
+            },
+            {
+              "id": "container-const-accessors",
+              "line": 1578,
+              "remove": [],
+              "add": [
+                "",
+                "\t\tconst TSharedStructType& operator[](const int32 Index) const",
+                "\t\t{",
+                "\t\t\treturn Instances[Index];",
+                "\t\t}",
+                "",
+                "\t\tTArrayView<const TSharedStructType> GetAllInstances() const",
+                "\t\t{",
+                "\t\t\treturn Instances;",
+                "\t\t}",
+                "",
+                "\t\tconst TMultiMap<uint32, int32>& GetHashToInstanceIndexMap() const",
+                "\t\t{",
+                "\t\t\treturn HashToInstanceIndexMap;",
+                "\t\t}"
               ]
             }
           ]
@@ -180,7 +180,7 @@
           "operations": [
             {
               "id": "entity-manager-extended-impls",
-              "line": 771,
+              "line": 688,
               "remove": [],
               "add": [
                 "",
@@ -189,12 +189,12 @@
                 "\tCHECK_SYNC_API();",
                 "\tCheckIfEntityIsActive(Entity);",
                 "\tFMassArchetypeData* Archetype = GetEntityStorageInterface().GetArchetype(Entity.Index);",
+                "\tif (bSignalObservers && Archetype)",
+                "\t{",
+                "\t\tObserverManager.OnPreEntityDestroyed(Archetype->GetCompositionDescriptor(), Entity);",
+                "\t}",
                 "\tif (Archetype)",
                 "\t{",
-                "\t\tif (bSignalObservers)",
-                "\t\t{",
-                "\t\t\tObserverManager.OnPreEntityDestroyed(Archetype->GetCompositionDescriptor(), Entity);",
-                "\t\t}",
                 "\t\tArchetype->RemoveEntity(Entity);",
                 "\t}",
                 "\tInternalReleaseEntity(Entity);",
@@ -249,8 +249,7 @@
                 "\tTMap<uint32, FSharedStruct> Result;",
                 "\tfor (const TPair<uint32, int32>& Pair : SharedFragmentsContainer.GetHashToInstanceIndexMap())",
                 "\t{",
-                "\t\tconst FSharedStruct& Instance = SharedFragmentsContainer.GetAllInstances()[Pair.Value];",
-                "\t\tResult.Add(Pair.Key, FSharedStruct::Make(Instance.GetScriptStruct(), Instance.GetMemory()));",
+                "\t\tResult.Add(Pair.Key, SharedFragmentsContainer[Pair.Value]);",
                 "\t}",
                 "\treturn Result;",
                 "}",
@@ -259,7 +258,7 @@
                 "{",
                 "\tfor (const TPair<uint32, int32>& Pair : SharedFragmentsContainer.GetHashToInstanceIndexMap())",
                 "\t{",
-                "\t\tFSharedStruct& Instance = SharedFragmentsContainer.GetAllInstances()[Pair.Value];",
+                "\t\tFSharedStruct& Instance = SharedFragmentsContainer[Pair.Value];",
                 "\t\tconst UScriptStruct* Type = Instance.GetScriptStruct();",
                 "\t\tcheck(Type != nullptr);",
                 "\t\tif (const FInstancedStruct* NewData = InSharedFragmentsMap.Find(Pair.Key))",
@@ -285,6 +284,7 @@
                 "{",
                 "\tconst TArrayView<const FSharedStruct> Instances = SharedFragmentsContainer.GetAllInstances();",
                 "\tconst int32 Index = Instances.IndexOfByKey(SharedFragment);",
+                "\tcheck(Index != INDEX_NONE);",
                 "\tconst uint32* Hash = SharedFragmentsContainer.GetHashToInstanceIndexMap().FindKey(Index);",
                 "\tcheck(Hash != nullptr);",
                 "\treturn *Hash;",
@@ -294,21 +294,22 @@
                 "{",
                 "\tconst TArrayView<const FConstSharedStruct> Instances = ConstSharedFragmentsContainer.GetAllInstances();",
                 "\tconst int32 Index = Instances.IndexOfByKey(ConstSharedFragment);",
+                "\tcheck(Index != INDEX_NONE);",
                 "\tconst uint32* Hash = ConstSharedFragmentsContainer.GetHashToInstanceIndexMap().FindKey(Index);",
                 "\tcheck(Hash != nullptr);",
                 "\treturn *Hash;",
                 "}",
                 "",
-                "const FSharedStruct& FMassEntityManager::GetSharedFragmentByHashChecked(const uint32 Hash) const",
+                "const FSharedStruct& FMassEntityManager::GetSharedFragmentByHashChecked(uint32 Hash) const",
                 "{",
                 "\tconst int32 Index = SharedFragmentsContainer.GetHashToInstanceIndexMap().FindChecked(Hash);",
-                "\treturn SharedFragmentsContainer.GetAllInstances()[Index];",
+                "\treturn SharedFragmentsContainer[Index];",
                 "}",
                 "",
-                "const FConstSharedStruct& FMassEntityManager::GetConstSharedFragmentByHashChecked(const uint32 Hash) const",
+                "const FConstSharedStruct& FMassEntityManager::GetConstSharedFragmentByHashChecked(uint32 Hash) const",
                 "{",
                 "\tconst int32 Index = ConstSharedFragmentsContainer.GetHashToInstanceIndexMap().FindChecked(Hash);",
-                "\treturn ConstSharedFragmentsContainer.GetAllInstances()[Index];",
+                "\treturn ConstSharedFragmentsContainer[Index];",
                 "}",
                 "",
                 "int32 FMassEntityManager::GetArchetypeChunkCount(const FMassArchetypeHandle& ArchetypeHandle) const",

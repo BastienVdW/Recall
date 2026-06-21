@@ -21,6 +21,19 @@
               ]
             }
           ]
+        },
+        {
+          "file": "Runtime/MassEntity/Private/MassProcessingPhaseManager.cpp",
+          "operations": [
+            {
+              "id": "add-render-ticking-group",
+              "line": 52,
+              "remove": [],
+              "add": [
+                "\t\tETickingGroup::TG_LastDemotable, // EMassProcessingPhase::Render"
+              ]
+            }
+          ]
         }
       ]
     }
