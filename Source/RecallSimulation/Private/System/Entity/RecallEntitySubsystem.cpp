@@ -253,8 +253,8 @@ void URecallEntitySubsystem::CreateControllerEntity(const TObjectPtr<const UMass
 
 	if (!InParams.OwnerControllerId.IsEmpty())
 	{
-		ControllerEntityCreationContext = MakeUnique<FRecallControllerEntityCreationContext>(FRecallControllerEntityCreationContext{
-			InParams.OwnerControllerId, EntityConfigAsset, InParams.SpawnParameters });
+		ControllerEntityCreationContext.Enqueue(MakeUnique<FRecallControllerEntityCreationContext>(FRecallControllerEntityCreationContext{
+			InParams.OwnerControllerId, EntityConfigAsset, InParams.SpawnParameters }));
 	}
 
 	TArray<FMassEntityHandle> Entities;
@@ -272,8 +272,6 @@ void URecallEntitySubsystem::CreateControllerEntity(const TObjectPtr<const UMass
 		FString::Printf(TEXT("ControllerID: %s, Entity: %s, AbsoluteIndex: %d, ChunkIndex: %d"),
 			*InParams.OwnerControllerId, *OutEntity.DebugGetDescription(), AbsoluteIndex, ChunkIndex));
 #endif // RECALL_DESYNC_LOG
-
-	// ControllerEntityCreationContext.Reset();
 }
 
 void URecallEntitySubsystem::CreateEntities_Internal(const FMassEntityConfig& EntityConfig, int32 Count, TArray<FMassEntityHandle>& OutEntities)
@@ -416,10 +414,10 @@ int32 URecallEntitySubsystem::GetControllerCount() const
 FRecallControllerEntityCreationContext URecallEntitySubsystem::PopControllerEntityCreationContext()
 {
 	// Make sure we have a player entity currently being created.
-	check(ControllerEntityCreationContext.IsValid());
-	const FRecallControllerEntityCreationContext CreationContext = MoveTemp(*ControllerEntityCreationContext.Get());
-	ControllerEntityCreationContext.Reset();
-	return CreationContext;
+	TUniquePtr<FRecallControllerEntityCreationContext> CreationContext;
+	ControllerEntityCreationContext.Dequeue(CreationContext);
+	checkf(CreationContext.IsValid(), TEXT("%hs No controller entity creation context available"), __FUNCTION__);
+	return MoveTemp(*CreationContext.Get());
 }
 
 FMassEntityHandle URecallEntitySubsystem::CreateStreamingEntity(const URecallEntityComponent* EntityComponent)

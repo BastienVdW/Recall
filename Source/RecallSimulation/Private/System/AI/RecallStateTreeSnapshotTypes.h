@@ -103,6 +103,10 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	TArray<uint8> GlobalParametersMemory;
 
+	/** Execution runtime data structs (new in 5.8, transient in FStateTreeInstanceStorage) */
+	UPROPERTY(VisibleAnywhere)
+	TArray<FInstancedStruct> ExecutionRuntimeStructs;
+
 	UPROPERTY(VisibleAnywhere)
 	int32 Generation = 0;
 

@@ -6,11 +6,11 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
 #include "Subsystems/WorldSubsystem.h"
 #include "System/Interface/RecallSimulationReactSystemInterface.h"
 #include "Mass/ExternalSubsystemTraits.h"
 #include "RecallEntityTypes.h"
+#include "Containers/Queue.h"
 
 #include "RecallEntitySubsystem.generated.h"
 
@@ -99,7 +99,7 @@ private:
 	TArray<TObjectPtr<const UMassEntityConfigAsset>> EntityConfigAssetCache;
 	
 	/* Controller entity being created so we can set its ID in constructor. */
-	TUniquePtr<FRecallControllerEntityCreationContext> ControllerEntityCreationContext;
+	TQueue<TUniquePtr<FRecallControllerEntityCreationContext>> ControllerEntityCreationContext;
 
 	// Cache manager
 	TSharedPtr<struct FRecallEntityRestoreSaveCacheManager> SaveCacheManager;
