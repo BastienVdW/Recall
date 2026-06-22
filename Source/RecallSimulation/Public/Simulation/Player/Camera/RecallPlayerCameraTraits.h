@@ -12,7 +12,7 @@
 
 #include "RecallPlayerCameraTraits.generated.h"
 
-UCLASS(meta=(DisplayName="MS Player Camera"))
+UCLASS(meta=(DisplayName="RE Player Camera"))
 class RECALLSIMULATION_API URecallPlayerCameraTrait : public UMassEntityTraitBase
 {
 	GENERATED_BODY()

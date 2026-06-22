@@ -14,7 +14,7 @@
 /**
  * Vehicle collider entity.
  */
-UCLASS(meta=(DisplayName="MS Vehicle Collider"))
+UCLASS(meta=(DisplayName="RE Vehicle Collider"))
 class RECALLPHYSICSMODULE_API URecallVehicleCollisionTrait : public URecallPhysicsBodyTrait
 {
 	GENERATED_BODY()

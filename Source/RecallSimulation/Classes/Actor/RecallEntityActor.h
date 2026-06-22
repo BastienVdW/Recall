@@ -15,7 +15,7 @@ class URecallEntityComponent;
 /*
 * Base class to setup our Entity Actor.
 */
-UCLASS(Abstract, Blueprintable, DisplayName="MS Entity Actor", ComponentWrapperClass)
+UCLASS(Abstract, Blueprintable, DisplayName="RE Entity Actor", ComponentWrapperClass)
 class RECALLSIMULATION_API ARecallEntityActor : public AActor
 {
 	GENERATED_UCLASS_BODY()

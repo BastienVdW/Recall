@@ -13,7 +13,7 @@
 /*
 * Trait to define a transform that can be set from a static object.
 */
-UCLASS(meta=(DisplayName="MS Transform"))
+UCLASS(meta=(DisplayName="RE Transform"))
 class RECALLSIMULATION_API URecallTransformTrait : public UMassEntityTraitBase
 {
 	GENERATED_BODY()

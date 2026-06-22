@@ -10,11 +10,13 @@
 #include "Animation/SkeletalMeshActor.h"
 #include "Engine/DecalActor.h"
 #include "Engine/StaticMeshActor.h"
+#include "Engine/World.h"
 #include "LevelSequenceActor.h"
 #include "Representation/Actor/Factory/RecallActorRepresentationPoolFactory.h"
 #include "Representation/Actor/Pool/RecallObjectPoolTypes.h"
 #include "Representation/Actor/RecallActorRepresentationTypes.h"
 #include "Serialization/ArchiveCrc32.h"
+#include "Subsystems/SubsystemCollection.h"
 #include "System/Simulation/RecallSimulationSubsystem.h"
 #include "Utility/Simulation/RecallSimulationUtils.h"
 

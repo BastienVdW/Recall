@@ -14,6 +14,7 @@
 #include "Engine/GameInstance.h"
 #include "Engine/LocalPlayer.h"
 #include "Engine/World.h"
+#include "Game/EasyOnlineGameSession.h"
 #include "Kismet/GameplayStatics.h"
 #include "RecallFrontendUtils.h"
 #include "Online/RecallGameState_InGame.h"
@@ -34,6 +35,7 @@ ARecallGameMode::ARecallGameMode(const FObjectInitializer& ObjectInitializer)
 {
 	PrimaryActorTick.bCanEverTick = true;
 
+	GameSessionClass = AEasyOnlineGameSession::StaticClass();
 	PlayerControllerClass = ARecallPlayerController::StaticClass();
 	GameStateClass = ARecallGameState_InGame::StaticClass();
 	PlayerStateClass = ARecallPlayerState_InGame::StaticClass();

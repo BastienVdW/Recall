@@ -11,7 +11,7 @@
 
 #include "RecallPhysicsCharacterTraits.generated.h"
 
-UCLASS(meta=(DisplayName="MS Character Collider"))
+UCLASS(meta=(DisplayName="RE Character Collider"))
 class RECALLPHYSICSMODULE_API URecallCharacterCollisionTrait : public URecallPhysicsBodyTrait
 {
 	GENERATED_BODY()
@@ -28,7 +28,7 @@ protected:
 
 };
 
-UCLASS(meta=(DisplayName="MS Character Virtual Collider"))
+UCLASS(meta=(DisplayName="RE Character Virtual Collider"))
 class RECALLPHYSICSMODULE_API URecallCharacterVirtualCollisionTrait : public URecallPhysicsBodyTrait
 {
 	GENERATED_BODY()

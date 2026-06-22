@@ -13,7 +13,7 @@
 
 class UMassEntityConfigAsset;
 
-UCLASS(meta=(DisplayName="MS Player Controller"))
+UCLASS(meta=(DisplayName="RE Player Controller"))
 class RECALLSIMULATION_API URecallPlayerControllerTrait : public UMassEntityTraitBase
 {
 	GENERATED_BODY()
@@ -26,7 +26,7 @@ protected:
 	TObjectPtr<UMassEntityConfigAsset> PlayerCameraEntityConfig;
 };
 
-UCLASS(meta=(DisplayName="MS AI Controller"))
+UCLASS(meta=(DisplayName="RE AI Controller"))
 class RECALLSIMULATION_API URecallAIControllerTrait : public UMassEntityTraitBase
 {
 	GENERATED_BODY()

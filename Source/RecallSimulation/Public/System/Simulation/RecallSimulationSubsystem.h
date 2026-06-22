@@ -26,14 +26,8 @@ class RECALLSIMULATION_API URecallSimulationSubsystem : public UWorldSubsystem
 
 	// UWorldSubsystem implementation Begin
 public:
-	void Initialize(FSubsystemCollectionBase& Collection) override final;
-	void Deinitialize() override final;
-
-#if WITH_EDITOR
-protected:
-	virtual bool DoesSupportWorldType(const EWorldType::Type WorldType) const override;
-#endif // WITH_EDITOR
-	// UWorldSubsystem implementation End
+	virtual void Initialize(FSubsystemCollectionBase& Collection) override final;
+	virtual void Deinitialize() override final;
 
 public:
 	void Start(const FRecallSimulationStartParams& Params);

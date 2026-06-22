@@ -14,7 +14,7 @@
 /*
 * Trait to define an entity that can have a faction
 */
-UCLASS(meta=(DisplayName="MS Tags"))
+UCLASS(meta=(DisplayName="RE Tags"))
 class RECALLSIMULATION_API URecallGameplayTagsTrait : public UMassEntityTraitBase
 {
 	GENERATED_BODY()

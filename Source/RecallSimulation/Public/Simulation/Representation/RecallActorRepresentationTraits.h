@@ -39,7 +39,7 @@ protected:
 	bool bUseActorScale = true;
 };
 
-UCLASS(meta=(DisplayName="MS Skeletal Mesh"))
+UCLASS(meta=(DisplayName="RE Skeletal Mesh"))
 class RECALLSIMULATION_API URecallSkeletalMeshActorRepresentationTrait : public URecallActorRepresentationTraitBase
 {
 	GENERATED_BODY()
@@ -57,7 +57,7 @@ protected:
 	FSkeletalMeshRepresentationMeshDesc Mesh;
 };
 
-UCLASS(meta=(DisplayName="MS Static Mesh"))
+UCLASS(meta=(DisplayName="RE Static Mesh"))
 class RECALLSIMULATION_API URecallStaticMeshActorRepresentationTrait : public URecallActorRepresentationTraitBase
 {
 	GENERATED_BODY()
@@ -75,7 +75,7 @@ protected:
 	FStaticMeshRepresentationMeshDesc Mesh;
 };
 
-UCLASS(meta=(DisplayName="MS Actor"))
+UCLASS(meta=(DisplayName="RE Actor"))
 class RECALLSIMULATION_API URecallActorRepresentationTrait : public URecallActorRepresentationTraitBase
 {
 	GENERATED_BODY()
@@ -96,7 +96,7 @@ protected:
 	bool bIsSkeletalMeshActor = false;
 };
 
-UCLASS(meta=(DisplayName="MS Decal"))
+UCLASS(meta=(DisplayName="RE Decal"))
 class RECALLSIMULATION_API URecallDecalRepresentationTrait : public URecallActorRepresentationTraitBase
 {
 	GENERATED_BODY()

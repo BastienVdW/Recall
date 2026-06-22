@@ -37,7 +37,7 @@ struct FRecallSensorSettings
 /**
 * Trait to attach a sensor collider to an entity
 */
-UCLASS(meta=(DisplayName="MS Sensor"))
+UCLASS(meta=(DisplayName="RE Sensor"))
 class RECALLPHYSICSMODULE_API URecallSensorTrait : public UMassEntityTraitBase
 {
 	GENERATED_BODY()

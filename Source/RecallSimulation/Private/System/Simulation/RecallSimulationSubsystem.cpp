@@ -7,6 +7,7 @@
 
 #include "System/Simulation/RecallSimulationSubsystem.h"
 
+#include "DrawDebugHelpers.h"
 #include "Engine/World.h"
 #include "MassProcessingPhaseManager.h"
 #include "MassSimulationSubsystem.h"
@@ -55,14 +56,6 @@ void URecallSimulationSubsystem::Deinitialize()
 		UMassSimulationSubsystem::GetOnSimulationStarted().RemoveAll(this);
 	}
 }
-
-#if WITH_EDITOR
-bool URecallSimulationSubsystem::DoesSupportWorldType(const EWorldType::Type WorldType) const
-{
-	// Added GamePreview as well because some editor tools seem to use it
-	return Super::DoesSupportWorldType(WorldType) || WorldType == EWorldType::GamePreview || WorldType == EWorldType::EditorPreview;
-}
-#endif // WITH_EDITOR
 
 void URecallSimulationSubsystem::OnSimulationStarted(UWorld* World)
 {

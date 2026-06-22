@@ -11,7 +11,7 @@
 
 #include "RecallPhysicsColliderTraits.generated.h"
 
-UCLASS(meta=(DisplayName="MS Sphere Collider"))
+UCLASS(meta=(DisplayName="RE Sphere Collider"))
 class RECALLPHYSICSMODULE_API URecallSphereCollisionTrait : public URecallPhysicsBodyTrait
 {
 	GENERATED_BODY()
@@ -28,7 +28,7 @@ protected:
 
 };
 
-UCLASS(meta=(DisplayName="MS Box Collider"))
+UCLASS(meta=(DisplayName="RE Box Collider"))
 class RECALLPHYSICSMODULE_API URecallBoxCollisionTrait : public URecallPhysicsBodyTrait
 {
 	GENERATED_BODY()
@@ -45,7 +45,7 @@ protected:
 
 };
 
-UCLASS(meta=(DisplayName="MS Capsule Collider"))
+UCLASS(meta=(DisplayName="RE Capsule Collider"))
 class RECALLPHYSICSMODULE_API URecallCapsuleCollisionTrait : public URecallPhysicsBodyTrait
 {
 	GENERATED_BODY()
@@ -65,7 +65,7 @@ protected:
 
 };
 
-UCLASS(meta=(DisplayName="MS Mesh Collider"))
+UCLASS(meta=(DisplayName="RE Mesh Collider"))
 class RECALLPHYSICSMODULE_API URecallMeshCollisionTrait : public URecallPhysicsBodyTrait
 {
 	GENERATED_BODY()
@@ -118,7 +118,7 @@ protected:
 /**
  * Landscape collider entity.
  */
-UCLASS(meta=(DisplayName="MS Height Field"))
+UCLASS(meta=(DisplayName="RE Height Field"))
 class RECALLPHYSICSMODULE_API URecallHeightFieldCollisionTrait : public URecallPhysicsBodyTrait
 {
 	GENERATED_BODY()

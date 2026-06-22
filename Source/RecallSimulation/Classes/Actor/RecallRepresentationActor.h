@@ -13,7 +13,7 @@
 /**
  * Base class for an actor representation.
  */
-UCLASS(Abstract, Blueprintable, DisplayName="MS Actor Representation", ComponentWrapperClass)
+UCLASS(Abstract, Blueprintable, DisplayName="RE Actor Representation", ComponentWrapperClass)
 class RECALLSIMULATION_API ARecallRepresentationActor : public AActor
 {
 	GENERATED_UCLASS_BODY()
