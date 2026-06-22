@@ -104,6 +104,28 @@
           "file": "Runtime/MassEntity/Private/MassEntityManager.cpp",
           "operations": [
             {
+              "id": "flush-commands-remove-game-thread-check-1",
+              "line": 2484,
+              "remove": [
+                "\tif (!ensureMsgf(IsInGameThread(), TEXT(\"Calling %hs is supported only on the Game Tread\"), __FUNCTION__))",
+                "\t{",
+                "\t\treturn;",
+                "\t}"
+              ],
+              "add": []
+            },
+            {
+              "id": "flush-commands-remove-game-thread-check-2",
+              "line": 2516,
+              "remove": [
+                "\tif (!ensureMsgf(IsInGameThread(), TEXT(\"Calling %hs is supported only on the Game Tread\"), __FUNCTION__))",
+                "\t{",
+                "\t\treturn;",
+                "\t}"
+              ],
+              "add": []
+            },
+            {
               "id": "entity-manager-impls",
               "line": 688,
               "remove": [],

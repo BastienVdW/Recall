@@ -54,9 +54,38 @@
 			"Name": "RecallEntityStreaming",
 			"Type": "Runtime",
 			"LoadingPhase": "Default"
+		},
+		{
+			"Name": "MassSpawner",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		},
+		{
+			"Name": "MassSpawner",
+			"Type": "Runtime"
+		},
+		{
+			"Name": "MassCommon",
+			"Type": "Runtime"
+		},
+		{
+			"Name": "MassSpawner",
+			"Type": "Runtime"
+		},
+		{
+			"Name": "MassSimulation",
+			"Type": "Runtime"
+		},
+		{
+			"Name": "MassGameplayEditor",
+			"Type": "Editor"
 		}
 	],
 	"Plugins": [
+		{
+			"Name": "ZoneGraph",
+			"Enabled": true
+		},
 		{
 			"Name": "StateTree",
 			"Enabled": true
@@ -96,10 +125,6 @@
 		},
 		{
 			"Name": "ProceduralMeshComponent",
-			"Enabled": true
-		},
-		{
-			"Name": "MassGameplay",
 			"Enabled": true
 		}
 	]

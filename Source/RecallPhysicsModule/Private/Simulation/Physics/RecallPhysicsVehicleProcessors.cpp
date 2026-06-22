@@ -22,7 +22,7 @@ URecallVehicleShapeFragmentConstructor::URecallVehicleShapeFragmentConstructor()
 {
 	ExecutionFlags = static_cast<int32>(EProcessorExecutionFlags::All);
 	ObservedTypes.Add(FRecallPhysicsBodyFragment::StaticStruct());
-	ObservedOperations = EMassObservedOperationFlags::AddElement;
+	ObservedOperations = EMassObservedOperationFlags::Add;
 }
 
 void URecallVehicleShapeFragmentConstructor::InitializeInternal(UObject& Owner, const TSharedRef<FMassEntityManager>& InEntityManager)

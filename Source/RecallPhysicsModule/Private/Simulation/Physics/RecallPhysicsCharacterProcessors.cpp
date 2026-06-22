@@ -7,6 +7,7 @@
 
 #include "RecallPhysicsCharacterProcessors.h"
 
+#include "Async/ParallelFor.h"
 #include "MassExecutionContext.h"
 #include "Physics/Character/RecallPhysicsCharacterObject.h"
 #include "Physics/Character/RecallPhysicsCharacterShapeTypes.h"
@@ -25,7 +26,7 @@ URecallCharacterFragmentConstructor::URecallCharacterFragmentConstructor()
 {
 	ExecutionFlags = static_cast<int32>(EProcessorExecutionFlags::All);
 	ObservedTypes.Add(FRecallPhysicsCharacterFragment::StaticStruct());
-	ObservedOperations = EMassObservedOperationFlags::AddElement;
+	ObservedOperations = EMassObservedOperationFlags::Add;
 }
 
 void URecallCharacterFragmentConstructor::InitializeInternal(UObject& Owner,
@@ -142,7 +143,7 @@ URecallCharacterVirtualFragmentConstructor::URecallCharacterVirtualFragmentConst
 {
 	ExecutionFlags = static_cast<int32>(EProcessorExecutionFlags::All);
 	ObservedTypes.Add(FRecallPhysicsCharacterFragment::StaticStruct());
-	ObservedOperations = EMassObservedOperationFlags::AddElement;
+	ObservedOperations = EMassObservedOperationFlags::Add;
 }
 
 void URecallCharacterVirtualFragmentConstructor::InitializeInternal(UObject& Owner,

@@ -26,7 +26,7 @@ URecallPlayerCameraConstructor::URecallPlayerCameraConstructor()
 {
 	ExecutionFlags = static_cast<int32>(EProcessorExecutionFlags::All);
 	ObservedTypes.Add(FRecallPlayerCameraFragment::StaticStruct());
-	ObservedOperations = EMassObservedOperationFlags::AddElement;
+	ObservedOperations = EMassObservedOperationFlags::Add;
 }
 
 void URecallPlayerCameraConstructor::InitializeInternal(UObject& Owner, const TSharedRef<FMassEntityManager>& InEntityManager)
@@ -73,7 +73,7 @@ URecallPlayerCameraDestructor::URecallPlayerCameraDestructor()
 {
 	ExecutionFlags = static_cast<int32>(EProcessorExecutionFlags::All);
 	ObservedTypes.Add(FRecallPlayerCameraFragment::StaticStruct());
-	ObservedOperations = EMassObservedOperationFlags::RemoveElement;
+	ObservedOperations = EMassObservedOperationFlags::Remove;
 }
 
 void URecallPlayerCameraDestructor::InitializeInternal(UObject& Owner, const TSharedRef<FMassEntityManager>& InEntityManager)

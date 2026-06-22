@@ -24,7 +24,7 @@ URecallBodyFragmentDestructor::URecallBodyFragmentDestructor()
 {
 	ExecutionFlags = static_cast<int32>(EProcessorExecutionFlags::All);
 	ObservedTypes.Add(FRecallPhysicsBodyFragment::StaticStruct());
-	ObservedOperations = EMassObservedOperationFlags::RemoveElement;
+	ObservedOperations = EMassObservedOperationFlags::Remove;
 }
 
 void URecallBodyFragmentDestructor::InitializeInternal(UObject& Owner, const TSharedRef<FMassEntityManager>& InEntityManager)
@@ -68,7 +68,7 @@ URecallBoxShapeFragmentConstructor::URecallBoxShapeFragmentConstructor()
 {
 	ExecutionFlags = static_cast<int32>(EProcessorExecutionFlags::All);
 	ObservedTypes.Add(FRecallPhysicsBodyFragment::StaticStruct());
-	ObservedOperations = EMassObservedOperationFlags::AddElement;
+	ObservedOperations = EMassObservedOperationFlags::Add;
 }
 
 void URecallBoxShapeFragmentConstructor::InitializeInternal(UObject& Owner, const TSharedRef<FMassEntityManager>& InEntityManager)
@@ -117,7 +117,7 @@ URecallSphereShapeFragmentConstructor::URecallSphereShapeFragmentConstructor()
 {
 	ExecutionFlags = static_cast<int32>(EProcessorExecutionFlags::All);
 	ObservedTypes.Add(FRecallPhysicsBodyFragment::StaticStruct());
-	ObservedOperations = EMassObservedOperationFlags::AddElement;
+	ObservedOperations = EMassObservedOperationFlags::Add;
 }
 
 void URecallSphereShapeFragmentConstructor::InitializeInternal(UObject& Owner, const TSharedRef<FMassEntityManager>& InEntityManager)
@@ -166,7 +166,7 @@ URecallCapsuleShapeFragmentConstructor::URecallCapsuleShapeFragmentConstructor()
 {
 	ExecutionFlags = (int32)EProcessorExecutionFlags::All;
 	ObservedTypes.Add(FRecallPhysicsBodyFragment::StaticStruct());
-	ObservedOperations = EMassObservedOperationFlags::AddElement;
+	ObservedOperations = EMassObservedOperationFlags::Add;
 }
 
 void URecallCapsuleShapeFragmentConstructor::InitializeInternal(UObject& Owner, const TSharedRef<FMassEntityManager>& InEntityManager)
