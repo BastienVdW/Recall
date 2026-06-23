@@ -906,7 +906,7 @@ void URecallPhysicsSubsystem::CreateStaticShape_Internal(const FInstancedStruct&
 	BodyHandleMap.Add(Handle.SerialNumber, Handle);
 }
 
-FRecallPhysicsBodyHandle URecallPhysicsSubsystem::CreateDynamicStaticShape_Internal(const FInstancedStruct& Shape,
+FRecallPhysicsBodyHandle URecallPhysicsSubsystem::CreateMutableStaticShape_Internal(const FInstancedStruct& Shape,
 	const FVector& Location, const FQuat& Rotation,
 	const TSubclassOf<URecallPhysicsObjectFactory>& FactoryClass, float Friction)
 {
