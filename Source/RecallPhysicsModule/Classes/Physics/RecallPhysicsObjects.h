@@ -44,6 +44,26 @@ public:
 public:
 	bool IsEnabled() const;
 	bool DoesTriggerHitEvents() const;
+	uint32 GetBodyID() const;
+	void SetActive(bool bActive);
+	virtual void Activate() override;
+	virtual void Desactivate() override;
+	virtual void ReleasePhysicsObject() override;
+
+	virtual void SetPosition(const FVector& Position) const override;
+	virtual void SetRotation(const FQuat& Rotation) const override;
+	virtual void GetPositionAndRotation(FVector& OutPosition, FQuat& OutRotation) const override;
+	virtual void SetPositionAndRotation(const FVector& Position, const FQuat& Rotation) const override;
+	void GetPosition(FVector& OutPosition) const;
+	FTransform GetTransform() const;
+	void SetRotation(const FRotator& Rotation) const;
+	void GetRotation(FQuat& OutRotation) const;
+	FVector GetForwardVector() const;
+	FVector GetRightVector() const;
+	bool CollideShape(const FVector& Position, uint32& OutContactBodyID, FVector& OutContactPosition, FVector& OutContactNormal) const;
+	bool ShapeCast(const FVector& Position, const FVector& Direction, float Distance,
+		uint32& OutContactBodyID, FVector& OutContactPosition, FVector& OutContactNormal) const;
+	float GetMass() const;
 
 	void SetWorldContextObject(UObject* Object);
 	UObject* GetWorldContextObject() const;
@@ -114,85 +134,6 @@ public:
 	 * @return Angular velocity in radians per second
 	 */
 	FVector GetAngularVelocity() const;
-
-	/* Transform */
-
-	/**
-	 * Gets the current world position of this body.
-	 * @param OutPosition The world position output
-	 */
-	void GetPosition(FVector& OutPosition) const;
-
-	/**
-	 * Gets the complete transform (position and rotation) of this body.
-	 * @return The world space transform
-	 */
-	FTransform GetTransform() const;
-
-	/**
-	 * Sets the rotation of this body without moving its position.
-	 * @param Rotation New rotation to apply
-	 */
-	void SetRotation(const FRotator& Rotation) const;
-
-	/**
-	 * Gets the current rotation of this body.
-	 * @param OutRotation The quaternion rotation output
-	 */
-	void GetRotation(FQuat& OutRotation) const;
-
-	/**
-	 * Gets the forward vector based on this body's current rotation.
-	 * @return Forward direction (X-axis in local space)
-	 */
-	FVector GetForwardVector() const;
-
-	/**
-	 * Gets the right vector based on this body's current rotation.
-	 * @return Right direction (Y-axis in local space)
-	 */
-	FVector GetRightVector() const;
-
-	/**
-	 * Tests if this body's shape overlaps any objects at the given world position.
-	 *
-	 * Use Case: Determine what objects this body would collide with if positioned at a specific location.
-	 * Common Uses: Ground detection, overlap checks for placement validation, collision testing at a point.
-	 *
-	 * @param Position World position to test the collision at
-	 * @param OutContactBodyID ID of the body this shape collides with (if any)
-	 * @param OutContactPosition The contact point(s) - may represent penetration center
-	 * @param OutContactNormal Normal vector at the contact point
-	 * @return true if the shape overlaps any objects at this position
-	 *
-	 * @note This does NOT move the body - it only tests collision at a position.
-	 * @note For finding the nearest point ON a surface, use ShapeCast() instead.
-	 */
-	bool CollideShape(const FVector& Position,
-		uint32& OutContactBodyID, FVector& OutContactPosition, FVector& OutContactNormal) const;
-
-	/**
-	 * Sweeps (casts) this body's shape from a starting position in a direction to find collisions.
-	 *
-	 * Use Case: Find where an object would hit if moving in a direction (raycasting with shape volume).
-	 * Common Uses: Wall detection for climbing, movement prediction, finding grip points on surfaces.
-	 *
-	 * @param Position Starting world position for the sweep
-	 * @param Direction Direction to sweep the shape (will be normalized internally)
-	 * @param Distance How far to sweep in the given direction
-	 * @param OutContactBodyID ID of the body that was hit (if any)
-	 * @param OutContactPosition The exact point where the shape first made contact with a surface
-	 * @param OutContactNormal Surface normal at the contact point (accurately calculated via GetWorldSpaceSurfaceNormal)
-	 * @return true if the sweep hit any object within the distance
-	 *
-	 * @note Returns the FIRST contact point along the sweep direction.
-	 * @note The contact normal is deterministic and accurate for surface interactions.
-	 * @note Prefer this over CollideShape when you need surface normals or nearest point detection.
-	 */
-	bool ShapeCast(const FVector& Position, const FVector& Direction, float Distance,
-		uint32& OutContactBodyID, FVector& OutContactPosition, FVector& OutContactNormal) const;
-
-	float GetMass() const;
 
 #if !UE_BUILD_SHIPPING
 	virtual void DumpObject() const;

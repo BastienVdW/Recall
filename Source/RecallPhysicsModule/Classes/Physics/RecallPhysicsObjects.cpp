@@ -45,25 +45,42 @@ using namespace std;
 
 DEFINE_LOG_CATEGORY(LogRecallPhysicsObject);
 
-bool FRecallPhysicsBody::IsEnabled() const
+bool FRecallPhysicsBody::IsEnabled() const { return FJPRPhysicsBody::IsEnabled(); }
+bool FRecallPhysicsBody::DoesTriggerHitEvents() const { return FJPRPhysicsBody::DoesTriggerHitEvents(); }
+uint32 FRecallPhysicsBody::GetBodyID() const { return FJPRPhysicsBody::GetBodyID(); }
+void FRecallPhysicsBody::SetActive(bool bActive) { FJPRPhysicsBody::SetActive(bActive); }
+void FRecallPhysicsBody::Activate() { FJPRPhysicsBody::Activate(); }
+void FRecallPhysicsBody::Desactivate() { FJPRPhysicsBody::Desactivate(); }
+void FRecallPhysicsBody::ReleasePhysicsObject() { FJPRPhysicsBody::ReleasePhysicsObject(); }
+void FRecallPhysicsBody::SetPosition(const FVector& Position) const { FJPRPhysicsBody::SetPosition(Position); }
+void FRecallPhysicsBody::SetRotation(const FQuat& Rotation) const { FJPRPhysicsBody::SetRotation(Rotation); }
+void FRecallPhysicsBody::GetPositionAndRotation(FVector& OutPosition, FQuat& OutRotation) const
 {
-	return FJPRPhysicsBody::IsEnabled();
+	FJPRPhysicsBody::GetPositionAndRotation(OutPosition, OutRotation);
 }
-
-bool FRecallPhysicsBody::DoesTriggerHitEvents() const
+void FRecallPhysicsBody::SetPositionAndRotation(const FVector& Position, const FQuat& Rotation) const
 {
-	return FJPRPhysicsBody::DoesTriggerHitEvents();
+	FJPRPhysicsBody::SetPositionAndRotation(Position, Rotation);
 }
-
-void FRecallPhysicsBody::SetWorldContextObject(UObject* Object)
+void FRecallPhysicsBody::GetPosition(FVector& OutPosition) const { FJPRPhysicsBody::GetPosition(OutPosition); }
+FTransform FRecallPhysicsBody::GetTransform() const { return FJPRPhysicsBody::GetTransform(); }
+void FRecallPhysicsBody::SetRotation(const FRotator& Rotation) const { FJPRPhysicsBody::SetRotation(Rotation); }
+void FRecallPhysicsBody::GetRotation(FQuat& OutRotation) const { FJPRPhysicsBody::GetRotation(OutRotation); }
+FVector FRecallPhysicsBody::GetForwardVector() const { return FJPRPhysicsBody::GetForwardVector(); }
+FVector FRecallPhysicsBody::GetRightVector() const { return FJPRPhysicsBody::GetRightVector(); }
+bool FRecallPhysicsBody::CollideShape(const FVector& Position, uint32& OutContactBodyID, FVector& OutContactPosition,
+	FVector& OutContactNormal) const
 {
-	FJPRPhysicsBody::SetWorldContextObject(Object);
+	return FJPRPhysicsBody::CollideShape(Position, OutContactBodyID, OutContactPosition, OutContactNormal);
 }
-
-UObject* FRecallPhysicsBody::GetWorldContextObject() const
+bool FRecallPhysicsBody::ShapeCast(const FVector& Position, const FVector& Direction, float Distance,
+	uint32& OutContactBodyID, FVector& OutContactPosition, FVector& OutContactNormal) const
 {
-	return FJPRPhysicsBody::GetWorldContextObject();
+	return FJPRPhysicsBody::ShapeCast(Position, Direction, Distance, OutContactBodyID, OutContactPosition, OutContactNormal);
 }
+float FRecallPhysicsBody::GetMass() const { return FJPRPhysicsBody::GetMass(); }
+void FRecallPhysicsBody::SetWorldContextObject(UObject* Object) { FJPRPhysicsBody::SetWorldContextObject(Object); }
+UObject* FRecallPhysicsBody::GetWorldContextObject() const { return FJPRPhysicsBody::GetWorldContextObject(); }
 
 #if WITH_JOLT_PHYSICS
 void FRecallPhysicsBody::SetupBodyCreationSettings(BodyCreationSettings& body_creation_settings, const FRecallPhysicsBodyParameters& Params)
@@ -86,248 +103,6 @@ void FRecallPhysicsBody::SetupBodyCreationSettings(BodyCreationSettings& body_cr
 	body_creation_settings.mNumPositionStepsOverride = Params.NumPositionStepsOverride;
 }
 #endif // WITH_JOLT_PHYSICS
-
-void FRecallPhysicsBody::GetPosition(FVector& OutPosition) const
-{
-	FQuat Rotation = FQuat::Identity;
-	GetPositionAndRotation(OutPosition, Rotation);
-}
-
-FTransform FRecallPhysicsBody::GetTransform() const
-{
-	FVector Position = FVector::ZeroVector;
-	FQuat Rotation = FQuat::Identity;
-	GetPositionAndRotation(Position, Rotation);
-
-	return FTransform(Rotation, Position);
-}
-
-void FRecallPhysicsBody::SetRotation(const FRotator& Rotation) const
-{
-	SetRotation(Rotation.Quaternion());
-}
-
-void FRecallPhysicsBody::GetRotation(FQuat& OutRotation) const
-{
-#if WITH_JOLT_PHYSICS
-	if (body_id.IsValid())
-	{
-		const Quat Rotation = GetBodyInterface().GetRotation(*body_id.Get());
-		OutRotation = JoltPhysicsToUnreal(FQuat(Rotation.GetX(), Rotation.GetY(), Rotation.GetZ(), Rotation.GetW()));
-	}
-#endif // WITH_JOLT_PHYSICS
-}
-
-bool FRecallPhysicsBody::CollideShape(const FVector& Position, uint32& OutContactBodyID, FVector& OutContactPosition,
-	FVector& OutContactNormal) const
-{
-#if WITH_JOLT_PHYSICS
-	if (!body_id.IsValid())
-	{
-		return false;
-	}
-	
-	RefConst<Shape> shape = GetBodyInterface().GetShape(*body_id.Get());
-
-	const FVector inJoltRayOrigin = UnrealToJoltPhysics(Position);
-	const RVec3 inOrigin(inJoltRayOrigin.X, inJoltRayOrigin.Y, inJoltRayOrigin.Z);
-	
-	const ObjectLayer object_layer = GetBodyInterface().GetObjectLayer(*body_id.Get());
-	const DefaultBroadPhaseLayerFilter default_broadphase_layer_filter = GetPhysicsSystem().GetDefaultBroadPhaseLayerFilter(object_layer);
-	const BroadPhaseLayerFilter& broadphase_layer_filter = default_broadphase_layer_filter;
-	
-	const DefaultObjectLayerFilter default_object_layer_filter = GetPhysicsSystem().GetDefaultLayerFilter(object_layer);
-	const ObjectLayerFilter &object_layer_filter = default_object_layer_filter;
-
-	const IgnoreSingleBodyFilter default_body_filter(*body_id.Get());
-	const BodyFilter &body_filter = default_body_filter;
-	
-	RMat44 start_position = GetBodyInterface().GetWorldTransform(*body_id.Get());
-	start_position.SetTranslation(inOrigin);
-	
-	class MyCollector : public CollideShapeCollector
-	{
-	public:
-		MyCollector(PhysicsSystem &inPhysicsSystem) :
-			mPhysicsSystem(inPhysicsSystem)
-		{
-		}
-
-		virtual void		AddHit(const CollideShapeResult &inResult) override
-		{
-			// Test if this collision is closer than the previous one
-			if (inResult.GetEarlyOutFraction() < GetEarlyOutFraction())
-			{
-				// Lock the body
-				BodyLockRead lock(mPhysicsSystem.GetBodyLockInterfaceNoLock(), inResult.mBodyID2);
-				JPH_ASSERT(lock.Succeeded()); // When this runs all bodies are locked so this should not fail
-				const Body *body = &lock.GetBody();
-
-				if (body->IsSensor())
-					return;
-
-				// Test that we're not hitting a vertical wall
-				RVec3 contact_pos = inResult.mContactPointOn1;
-				Vec3 normal = body->GetWorldSpaceSurfaceNormal(inResult.mSubShapeID2, contact_pos);
-				
-				// Update early out fraction to this hit
-				UpdateEarlyOutFraction(inResult.GetEarlyOutFraction());
-
-				// Get the contact properties
-				mBody = body;
-				mContactPosition = contact_pos;
-				mContactNormal = normal;
-			}
-		}
-
-		// Configuration
-		PhysicsSystem &		mPhysicsSystem;
-
-		// Resulting closest collision
-		const Body *		mBody = nullptr;
-		RVec3				mContactPosition = RVec3::sZero();
-		Vec3				mContactNormal = Vec3::sZero();
-	};
-
-	CollideShapeSettings settings;
-
-	MyCollector collector(GetPhysicsSystem());
-	GetPhysicsSystem().GetNarrowPhaseQueryNoLock().CollideShape(shape, Vec3(1.0f, 1.0f, 1.0f), start_position,
-		settings, shape->GetCenterOfMass(), collector, broadphase_layer_filter, object_layer_filter, body_filter);
-	if (collector.mBody == nullptr)
-	{
-		return false;		
-	}
-
-	OutContactBodyID = collector.mBody->GetID().GetIndexAndSequenceNumber();
-	OutContactPosition = JoltPhysicsToUnreal(
-		FVector(collector.mContactPosition.GetX(), collector.mContactPosition.GetY(), collector.mContactPosition.GetZ()));
-	OutContactNormal = JoltPhysicsToUnrealDirection(
-		FVector(collector.mContactNormal.GetX(), collector.mContactNormal.GetY(), collector.mContactNormal.GetZ()));
-
-	return true;
-#else // WITH_JOLT_PHYSICS
-	return false;
-#endif
-}
-
-bool FRecallPhysicsBody::ShapeCast(const FVector& Position, const FVector& Direction, float Distance,
-                                     uint32& OutContactBodyID, FVector& OutContactPosition, FVector& OutContactNormal) const
-{
-#if WITH_JOLT_PHYSICS
-	if (!body_id.IsValid())
-	{
-		return false;
-	}
-	
-	RefConst<Shape> shape = GetBodyInterface().GetShape(*body_id.Get());
-
-	const FVector inJoltRayOrigin = UnrealToJoltPhysics(Position);
-	const RVec3 inOrigin(inJoltRayOrigin.X, inJoltRayOrigin.Y, inJoltRayOrigin.Z);
-	
-	const FVector inJoltRayDirection = UnrealToJoltPhysicsDirection(Direction);
-	const Vec3 inDirection(inJoltRayDirection.X, inJoltRayDirection.Y, inJoltRayDirection.Z);
-
-	const float ray_length = Distance * UnrealToJoltPhysicsUnitScale;
-
-	const ObjectLayer object_layer = GetBodyInterface().GetObjectLayer(*body_id.Get());
-	const DefaultBroadPhaseLayerFilter default_broadphase_layer_filter = GetPhysicsSystem().GetDefaultBroadPhaseLayerFilter(object_layer);
-	const BroadPhaseLayerFilter& broadphase_layer_filter = default_broadphase_layer_filter;
-	
-	const DefaultObjectLayerFilter default_object_layer_filter = GetPhysicsSystem().GetDefaultLayerFilter(object_layer);
-	const ObjectLayerFilter &object_layer_filter = default_object_layer_filter;
-
-	const IgnoreSingleBodyFilter default_body_filter(*body_id.Get());
-	// const BodyFilter &body_filter = mBodyFilter != nullptr? *mBodyFilter : default_body_filter;
-	const BodyFilter &body_filter = default_body_filter;
-
-	RMat44 start_position = GetBodyInterface().GetWorldTransform(*body_id.Get());
-	start_position.SetTranslation(inOrigin);
-	
-	RShapeCast shape_cast(shape, Vec3::sReplicate(1.0f),
-		start_position, inDirection * ray_length);
-
-	class MyCollector : public CastShapeCollector
-	{
-	public:
-		MyCollector(PhysicsSystem &inPhysicsSystem, const RShapeCast &inShape) :
-			mPhysicsSystem(inPhysicsSystem),
-			mShape(inShape)
-		{
-		}
-
-		virtual void		AddHit(const ShapeCastResult &inResult) override
-		{
-			// Test if this collision is closer than the previous one
-			if (inResult.mFraction < GetEarlyOutFraction())
-			{
-				// Lock the body
-				BodyLockRead lock(mPhysicsSystem.GetBodyLockInterfaceNoLock(), inResult.mBodyID2);
-				JPH_ASSERT(lock.Succeeded()); // When this runs all bodies are locked so this should not fail
-				const Body *body = &lock.GetBody();
-
-				if (body->IsSensor())
-					return;
-
-				// Test that we're not hitting a vertical wall
-				RVec3 contact_pos = mShape.GetPointOnRay(inResult.mFraction);
-				Vec3 normal = body->GetWorldSpaceSurfaceNormal(inResult.mSubShapeID2, contact_pos);
-				
-				// Update early out fraction to this hit
-				UpdateEarlyOutFraction(inResult.mFraction);
-
-				// Get the contact properties
-				mBody = body;
-				mContactPosition = contact_pos;
-				mContactNormal = normal;
-			}
-		}
-
-		// Configuration
-		PhysicsSystem &		mPhysicsSystem;
-		RShapeCast			mShape;
-
-		// Resulting closest collision
-		const Body *		mBody = nullptr;
-		RVec3				mContactPosition = RVec3::sZero();
-		Vec3				mContactNormal = Vec3::sZero();
-	};
-
-	ShapeCastSettings settings;
-
-	MyCollector collector(GetPhysicsSystem(), shape_cast);
-	GetPhysicsSystem().GetNarrowPhaseQueryNoLock().CastShape(shape_cast, settings, shape->GetCenterOfMass(),
-		collector, broadphase_layer_filter, object_layer_filter, body_filter);
-	if (collector.mBody == nullptr)
-	{
-		return false;		
-	}
-	
-	OutContactBodyID = collector.mBody->GetID().GetIndexAndSequenceNumber();
-	OutContactPosition = JoltPhysicsToUnreal(
-		FVector(collector.mContactPosition.GetX(), collector.mContactPosition.GetY(), collector.mContactPosition.GetZ()));
-	OutContactNormal = JoltPhysicsToUnrealDirection(
-		FVector(collector.mContactNormal.GetX(), collector.mContactNormal.GetY(), collector.mContactNormal.GetZ()));
-
-	return true;
-#else // WITH_JOLT_PHYSICS
-	return false;
-#endif
-}
-
-float FRecallPhysicsBody::GetMass() const
-{
-#if WITH_JOLT_PHYSICS
-	if (body_id.IsValid())
-	{
-		BodyLockRead lock(GetPhysicsSystem().GetBodyLockInterfaceNoLock(), *body_id.Get());
-		JPH_ASSERT(lock.Succeeded()); // When this runs all bodies are locked so this should not fail
-		const Body *body = &lock.GetBody();
-		return body->GetBodyCreationSettings().GetMassProperties().mMass;
-	}
-#endif // WITH_JOLT_PHYSICS
-	return 0.0f;
-}
 
 void FRecallPhysicsBody::AddLinearVelocity(const FVector& LinearVelocity)
 {
@@ -497,20 +272,6 @@ FVector FRecallPhysicsBody::GetMovementForwardVector() const
 	return GetForwardVector();
 }
 
-FVector FRecallPhysicsBody::GetForwardVector() const
-{
-	FQuat Rotation = FQuat::Identity;
-	GetRotation(Rotation);
-	return Rotation.GetForwardVector();
-}
-
-FVector FRecallPhysicsBody::GetRightVector() const
-{
-	FQuat Rotation = FQuat::Identity;
-	GetRotation(Rotation);
-	return Rotation.GetRightVector();
-}
-
 #if WITH_JOLT_PHYSICS
 void FRecallPhysicsBody::SaveVector(JPH::StateRecorder& State, const FVector& Vec)
 {
@@ -526,7 +287,7 @@ void FRecallPhysicsBody::RestoreVector(JPH::StateRecorder& State, FVector& Vec)
 
 #endif // WITH_JOLT_PHYSICS
 
-#if !UE_BUILD_SHIPPING
+#if UE_BUILD_DEBUG || UE_BUILD_DEVELOPMENT
 void FRecallPhysicsBody::DumpObject() const
 {
 #if WITH_JOLT_PHYSICS
@@ -555,5 +316,5 @@ void FRecallPhysicsBody::DumpObject() const
 	}
 #endif // WITH_JOLT_PHYSICS
 }
-#endif // !UE_BUILD_SHIPPING
+#endif // UE_BUILD_DEBUG || UE_BUILD_DEVELOPMENT
 // FRecallPhysicsBody End
