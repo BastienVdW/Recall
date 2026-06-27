@@ -87,52 +87,10 @@ void FRecallPhysicsBody::SetupBodyCreationSettings(BodyCreationSettings& body_cr
 }
 #endif // WITH_JOLT_PHYSICS
 
-void FRecallPhysicsBody::SetPosition(const FVector& Position) const
-{
-#if WITH_JOLT_PHYSICS
-	if (body_id.IsValid())
-	{
-		const FVector PhysicsPos = UnrealToJoltPhysics(Position);
-		const RVec3 Pos(PhysicsPos.X, PhysicsPos.Y, PhysicsPos.Z);
-
-		GetBodyInterface().SetPosition(*body_id.Get(), Pos, EActivation::DontActivate);
-	}
-#endif // WITH_JOLT_PHYSICS
-}
-
-void FRecallPhysicsBody::SetPositionAndRotation(const FVector& Position, const FQuat& Rotation) const
-{
-#if WITH_JOLT_PHYSICS
-	if (body_id.IsValid())
-	{
-		const FVector PhysicsPos = UnrealToJoltPhysics(Position);
-		const RVec3 Pos(PhysicsPos.X, PhysicsPos.Y, PhysicsPos.Z);
-		const FQuat Rot = UnrealToJoltPhysics(Rotation);
-
-		GetBodyInterface().SetPositionAndRotation(*body_id.Get(), Pos, Quat(Rot.X, Rot.Y, Rot.Z, Rot.W), EActivation::DontActivate);
-	}
-#endif // WITH_JOLT_PHYSICS
-}
-
 void FRecallPhysicsBody::GetPosition(FVector& OutPosition) const
 {
 	FQuat Rotation = FQuat::Identity;
 	GetPositionAndRotation(OutPosition, Rotation);
-}
-
-void FRecallPhysicsBody::GetPositionAndRotation(FVector& OutPosition, FQuat& OutRotation) const
-{
-#if WITH_JOLT_PHYSICS
-	if (body_id.IsValid())
-	{
-		RVec3 Position = RVec3::sZero();
-		Quat Rotation = Quat::sIdentity();
-		GetBodyInterface().GetPositionAndRotation(*body_id.Get(), Position, Rotation);
-		
-		OutPosition = JoltPhysicsToUnreal(FVector(Position.GetX(), Position.GetY(), Position.GetZ()));
-		OutRotation = JoltPhysicsToUnreal(FQuat(Rotation.GetX(), Rotation.GetY(), Rotation.GetZ(), Rotation.GetW()));
-	}
-#endif // WITH_JOLT_PHYSICS
 }
 
 FTransform FRecallPhysicsBody::GetTransform() const
@@ -142,17 +100,6 @@ FTransform FRecallPhysicsBody::GetTransform() const
 	GetPositionAndRotation(Position, Rotation);
 
 	return FTransform(Rotation, Position);
-}
-
-void FRecallPhysicsBody::SetRotation(const FQuat& Rotation) const
-{
-#if WITH_JOLT_PHYSICS
-	if (body_id.IsValid())
-	{
-		const FQuat Rot = UnrealToJoltPhysics(Rotation);
-		GetBodyInterface().SetRotation(*body_id.Get(), Quat(Rot.X, Rot.Y, Rot.Z, Rot.W), EActivation::DontActivate);
-	}
-#endif // WITH_JOLT_PHYSICS
 }
 
 void FRecallPhysicsBody::SetRotation(const FRotator& Rotation) const
@@ -539,46 +486,6 @@ FVector FRecallPhysicsBody::GetAngularVelocity() const
 	return FVector::ZeroVector;
 }
 
-void FRecallPhysicsBody::SetActive(bool bActive)
-{
-	if (bActive)
-	{
-		Activate();
-	}
-	else
-	{
-		Desactivate();
-	}
-}
-
-void FRecallPhysicsBody::Activate()
-{
-	if (bEnabled) return;
-
-	bEnabled = true;
-
-#if WITH_JOLT_PHYSICS
-	if (body_id.IsValid())
-	{
-		GetBodyInterface().AddBody(*body_id.Get(), EActivation::Activate);
-	}
-#endif // WITH_JOLT_PHYSICS
-}
-
-void FRecallPhysicsBody::Desactivate()
-{
-	if (!bEnabled) return;
-
-	bEnabled = false;
-
-#if WITH_JOLT_PHYSICS
-	if (body_id.IsValid())
-	{
-		GetBodyInterface().RemoveBody(*body_id.Get());
-	}
-#endif // WITH_JOLT_PHYSICS
-}
-
 FVector FRecallPhysicsBody::GetMovementForwardVector() const
 {
 	const FVector WorldVelocity = GetLinearVelocity();
@@ -605,22 +512,6 @@ FVector FRecallPhysicsBody::GetRightVector() const
 }
 
 #if WITH_JOLT_PHYSICS
-Body* FRecallPhysicsBody::CreateAndSetBody(const BodyCreationSettings& body_settings, uint32 InBodyID)
-{
-	const BodyID NewBodyID(InBodyID);
-
-	Body* body = GetBodyInterface().CreateBodyWithID(NewBodyID, body_settings);
-
-	SetBodyID(NewBodyID);
-
-	return body;
-}
-
-void FRecallPhysicsBody::SetBodyID(const BodyID& InBodyID)
-{
-	body_id = TSharedPtr<BodyID>(new BodyID(InBodyID));
-}
-
 void FRecallPhysicsBody::SaveVector(JPH::StateRecorder& State, const FVector& Vec)
 {
 	State.Write(DVec3(Vec.X, Vec.Y, Vec.Z));
@@ -633,47 +524,7 @@ void FRecallPhysicsBody::RestoreVector(JPH::StateRecorder& State, FVector& Vec)
 	Vec = FVector(Src.GetX(), Src.GetY(), Src.GetZ());
 }
 
-BodyInterface& FRecallPhysicsBody::GetBodyInterface() const
-{
-	check(physics_system.IsValid());
-	return physics_system.Pin()->GetBodyInterface();
-}
-
-PhysicsSystem& FRecallPhysicsBody::GetPhysicsSystem() const
-{
-	check(physics_system.IsValid());
-	return *physics_system.Pin();
-}
-
-JPH::TempAllocator& FRecallPhysicsBody::GetTempAllocator() const
-{
-	check(temp_allocator.IsValid());
-	return *temp_allocator.Pin();
-}
 #endif // WITH_JOLT_PHYSICS
-
-void FRecallPhysicsBody::ReleasePhysicsObject()
-{
-	Desactivate();
-
-#if WITH_JOLT_PHYSICS
-	if (body_id.IsValid())
-	{
-		GetBodyInterface().DestroyBody(*body_id.Get());
-
-		body_id.Reset();
-	}
-#endif // WITH_JOLT_PHYSICS
-}
-
-uint32 FRecallPhysicsBody::GetBodyID() const
-{
-#if WITH_JOLT_PHYSICS
-	return body_id.IsValid() ? body_id->GetIndexAndSequenceNumber() : JPH::BodyID::cInvalidBodyID;
-#else // WITH_JOLT_PHYSICS
-	return 0;
-#endif
-}
 
 #if !UE_BUILD_SHIPPING
 void FRecallPhysicsBody::DumpObject() const

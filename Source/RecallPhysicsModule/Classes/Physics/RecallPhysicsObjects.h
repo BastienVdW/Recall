@@ -13,7 +13,7 @@ struct FRecallPhysicsBodyParameters;
 
 #ifndef WITH_JOLT_PHYSICS
 #define WITH_JOLT_PHYSICS 0
-#endif
+#endif // WITH_JOLT_PHYSICS
 
 #if WITH_JOLT_PHYSICS
 namespace JPH
@@ -47,8 +47,6 @@ public:
 
 	void SetWorldContextObject(UObject* Object);
 	UObject* GetWorldContextObject() const;
-
-	uint32 GetBodyID() const;
 
 	/* Velocity */
 
@@ -196,23 +194,9 @@ public:
 
 	float GetMass() const;
 
-	void SetActive(bool bActive);
-	
 #if !UE_BUILD_SHIPPING
 	virtual void DumpObject() const;
 #endif // !UE_BUILD_SHIPPING
-
-	/**
-	 * Activates this body for physics simulation.
-	 * @note Inactive bodies are not updated by the physics engine.
-	 */
-	virtual void Activate();
-
-	/**
-	 * Deactivates this body - it will no longer participate in physics simulation.
-	 * @note Use this for performance optimization when bodies shouldn't be active.
-	 */
-	virtual void Desactivate();
 
 	/**
 	 * Adds to the linear velocity of this body.
@@ -234,36 +218,6 @@ public:
 	 * @note Virtual implementation may differ from the non-virtual variant.
 	 */
 	virtual FVector GetLinearVelocity() const;
-
-	/**
-	 * Sets the world position of this body.
-	 * @param Position New world position
-	 * @note This is a virtual override of the non-virtual GetPosition variant.
-	 */
-	virtual void SetPosition(const FVector& Position) const;
-
-	/**
-	 * Sets the rotation of this body using a quaternion.
-	 * @param Rotation New rotation as quaternion
-	 * @note Provides an alternative to the FRotator-based SetRotation.
-	 */
-	virtual void SetRotation(const FQuat& Rotation) const;
-
-	/**
-	 * Gets both position and rotation in a single call.
-	 * @param OutPosition The world position output
-	 * @param OutRotation The quaternion rotation output
-	 * @note More efficient than calling GetPosition and GetRotation separately.
-	 */
-	virtual void GetPositionAndRotation(FVector& OutPosition, FQuat& OutRotation) const;
-
-	/**
-	 * Sets both position and rotation in a single call.
-	 * @param Position New world position
-	 * @param Rotation New rotation as quaternion
-	 * @note More efficient than calling SetPosition and SetRotation separately.
-	 */
-	virtual void SetPositionAndRotation(const FVector& Position, const FQuat& Rotation) const;
 
 	/**
 	 * Gets the forward direction vector, accounting for any movement-specific rotation.
@@ -288,10 +242,6 @@ public:
 	 */
 	virtual void DrawDebugInfo(const UWorld* World, const FColor& Color) const {}
 
-public:
-	// This will be called before physics system is destroyed
-	virtual void ReleasePhysicsObject();
-
 #if WITH_JOLT_PHYSICS
 public:
 	virtual void SaveState(JPH::StateRecorder& State) {}
@@ -306,26 +256,7 @@ public:
 	 * Helper method to restore a FVector from the state recorder.
 	 */
 	static void RestoreVector(JPH::StateRecorder& State, FVector& Vec);
-	
-public:
-	void SetPhysicsSystem(const TWeakPtr<JPH::PhysicsSystem>& System) { physics_system = System; }
-	void SetTempAllocator(const TWeakPtr<JPH::TempAllocator>& TempAllocator) { temp_allocator = TempAllocator; }
-
 protected:
-	JPH::Body* CreateAndSetBody(const JPH::BodyCreationSettings& body_settings, uint32 InBodyID);
-	void SetBodyID(const JPH::BodyID& InBodyID);
-
-	JPH::BodyInterface& GetBodyInterface() const;
-	JPH::PhysicsSystem& GetPhysicsSystem() const;
-	JPH::TempAllocator& GetTempAllocator() const;
-	
 	static void SetupBodyCreationSettings(JPH::BodyCreationSettings& body_creation_settings, const FRecallPhysicsBodyParameters& Params);
-	
-protected:
-	TSharedPtr<JPH::BodyID> body_id;
-
-private:
-	TWeakPtr<JPH::TempAllocator> temp_allocator;
-	TWeakPtr<JPH::PhysicsSystem> physics_system;
 #endif // WITH_JOLT_PHYSICS
 };
