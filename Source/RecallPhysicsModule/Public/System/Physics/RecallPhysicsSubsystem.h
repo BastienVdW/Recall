@@ -208,8 +208,6 @@ protected:
 
 	FRecallPhysicsBodySnapshot TakeBodySnapshot(const FRecallPhysicsBodyHandle& Handle) const;
 	
-	// void RunSample();
-
 #if WITH_JOLT_PHYSICS
 	friend class URecallPhysicsObjectFactory;
 	

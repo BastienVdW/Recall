@@ -7,6 +7,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Physics/JPRPhysicsObjectFactory.h"
 #include "StructUtils/InstancedStruct.h"
 
 #include "RecallPhysicsObjectFactory.generated.h"
@@ -20,17 +21,11 @@ struct FJPRPhysicsBodyParameters;
  * This way we can expand it from other modules to add new physics objects.
  */
 UCLASS(Abstract, Within=RecallPhysicsSubsystem)
-class RECALLPHYSICSMODULE_API URecallPhysicsObjectFactory : public UObject
+class RECALLPHYSICSMODULE_API URecallPhysicsObjectFactory : public UJPRPhysicsObjectFactory
 {
 	GENERATED_BODY()
 
 public:
 	virtual TSharedPtr<FRecallPhysicsBody> BuildPhysicsObject(
 		uint32 BodyID, const FInstancedStruct& Shape, const FJPRPhysicsBodyParameters& Params) const;
-
-protected:
-	/**
-	 * Initial setup of the physics body.
-	 */
-	void SetupPhysicsObject(const TSharedPtr<FRecallPhysicsBody>& Body) const;
 };

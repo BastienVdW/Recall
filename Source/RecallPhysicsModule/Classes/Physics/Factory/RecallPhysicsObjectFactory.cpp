@@ -7,25 +7,9 @@
 
 #include "RecallPhysicsObjectFactory.h"
 
-#include "Physics/RecallPhysicsObjects.h"
-#include "System/Physics/RecallPhysicsSubsystem.h"
-
 TSharedPtr<FRecallPhysicsBody> URecallPhysicsObjectFactory::BuildPhysicsObject(
 	uint32 BodyID, const FInstancedStruct& Shape, const FJPRPhysicsBodyParameters& Params) const
 {
 	unimplemented();
 	return nullptr;
-}
-
-void URecallPhysicsObjectFactory::SetupPhysicsObject(const TSharedPtr<FRecallPhysicsBody>& Body) const
-{
-	if (!ensure(Body.IsValid())) return;
-
-	Body->SetWorldContextObject(GetOuter());
-
-#if WITH_JOLT_PHYSICS
-	const URecallPhysicsSubsystem* PhysicsSystem = CastChecked<URecallPhysicsSubsystem>(GetOuter());
-	Body->SetPhysicsSystem(PhysicsSystem->GetPhysicsSystemPtr());
-	Body->SetTempAllocator(PhysicsSystem->GetTempAllocator());
-#endif // WITH_JOLT_PHYSICS
 }
