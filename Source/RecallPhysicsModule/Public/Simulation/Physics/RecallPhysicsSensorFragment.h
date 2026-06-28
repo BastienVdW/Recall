@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2024 Van de Walle Bastien
+// Copyright (C) 2024 Van de Walle Bastien
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -24,7 +24,7 @@ struct RECALLPHYSICSMODULE_API FRecallPhysicsSensorInstance
 
 	// Handle for the interaction volume
 	UPROPERTY(VisibleAnywhere)
-	FRecallPhysicsBodyHandle BodyHandle;
+	FJPRPhysicsBodyHandle BodyHandle;
 
 	UPROPERTY(VisibleAnywhere)
 	FName SensorName = NAME_None;
@@ -78,7 +78,7 @@ struct RECALLPHYSICSMODULE_API FRecallPhysicsSensorFragment : public FMassFragme
 		return false;
 	}
 
-	FORCEINLINE bool IsSensorOverlapping(const FRecallPhysicsBodyHandle& BodyHandle) const
+	FORCEINLINE bool IsSensorOverlapping(const FJPRPhysicsBodyHandle& BodyHandle) const
 	{
 		if (BodyHandle.IsValid())
 		{
@@ -98,9 +98,9 @@ struct RECALLPHYSICSMODULE_API FRecallPhysicsSensorFragment : public FMassFragme
 		return IsSensorOverlapping(NAME_None);
 	}
 
-	FORCEINLINE TArray<FRecallPhysicsBodyHandle> GetSensorBodyHandles() const
+	FORCEINLINE TArray<FJPRPhysicsBodyHandle> GetSensorBodyHandles() const
 	{
-		TArray<FRecallPhysicsBodyHandle> Results;
+		TArray<FJPRPhysicsBodyHandle> Results;
 		Results.Reserve(SensorInstances.Num());
 
 		for (const FRecallPhysicsSensorInstance& SensorInstance : SensorInstances)
@@ -111,14 +111,14 @@ struct RECALLPHYSICSMODULE_API FRecallPhysicsSensorFragment : public FMassFragme
 		return Results;
 	}
 
-	FORCEINLINE void AddSensor(const FRecallPhysicsBodyHandle& BodyHandle, FName SensorName = NAME_None)
+	FORCEINLINE void AddSensor(const FJPRPhysicsBodyHandle& BodyHandle, FName SensorName = NAME_None)
 	{
 		FRecallPhysicsSensorInstance& NewInstance = SensorInstances.AddDefaulted_GetRef();
 		NewInstance.BodyHandle = BodyHandle;
 		NewInstance.SensorName = SensorName;
 	}
 
-	FORCEINLINE void RemoveSensor(const FRecallPhysicsBodyHandle& BodyHandle)
+	FORCEINLINE void RemoveSensor(const FJPRPhysicsBodyHandle& BodyHandle)
 	{
 		for (int32 SensorIndex = 0; SensorIndex < SensorInstances.Num(); SensorIndex++)
 		{

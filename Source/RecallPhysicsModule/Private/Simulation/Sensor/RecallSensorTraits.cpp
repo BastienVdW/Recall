@@ -17,7 +17,7 @@ void URecallSensorTrait::BuildTemplate(FMassEntityTemplateBuildContext& BuildCon
 	FMassEntityManager& EntityManager = UE::Mass::Utils::GetEntityManagerChecked(World);
 
 	BuildContext.RequireFragment<FRecallTransformFragment>();
-	BuildContext.RequireFragment<FRecallPhysicsBodyFragment>();
+	BuildContext.RequireFragment<FJPRPhysicsBodyFragment>();
 	BuildContext.RequireFragment<FRecallPhysicsSensorFragment>();
 
 	BuildContext.AddFragment<FRecallSensorFragment>();
@@ -48,7 +48,7 @@ void URecallSensorTrait::BuildTemplate(FMassEntityTemplateBuildContext& BuildCon
 
 		FRecallSensorInstanceParameters& Instance = SharedFragment.InstanceParameters.AddDefaulted_GetRef();
 		Instance.SensorName = SensorName;
-		Instance.Shape = FRecallPhysicsSphereShape{ Settings.SensorRange };
+		Instance.Shape = FJPRPhysicsSphereShape{ Settings.SensorRange };
 		Instance.Params = Params;
 		Instance.Offset = Settings.CenterOffset;
 		Instance.DebugActivatedColor = Settings.DebugActivatedColor;

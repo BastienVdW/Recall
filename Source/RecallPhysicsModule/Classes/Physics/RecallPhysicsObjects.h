@@ -43,12 +43,12 @@ protected:
 };
 
 /** Mutable extension of the const Recall body view. */
-class RECALLPHYSICSMODULE_API FRecallPhysicsBodyView : public FConstRecallPhysicsBodyView
+class RECALLPHYSICSMODULE_API FJPRPhysicsBodyView : public FConstRecallPhysicsBodyView
 {
 public:
-	FRecallPhysicsBodyView() = default;
-	FRecallPhysicsBodyView(std::nullptr_t) : FConstRecallPhysicsBodyView(nullptr) {}
-	explicit FRecallPhysicsBodyView(const TWeakPtr<FJPRPhysicsBody>& InBody);
+	FJPRPhysicsBodyView() = default;
+	FJPRPhysicsBodyView(std::nullptr_t) : FConstRecallPhysicsBodyView(nullptr) {}
+	explicit FJPRPhysicsBodyView(const TWeakPtr<FJPRPhysicsBody>& InBody);
 
 	TSharedPtr<FJPRPhysicsBody> Pin() const;
 

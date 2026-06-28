@@ -240,7 +240,7 @@ void SaveMesh(const TObjectPtr<UStaticMesh>& Mesh, TArray<FVector>& OutVertices,
 
 void CreateLandscapeShape(URecallPhysicsSubsystem& PhysicsSystem, const ALandscape& Landscape, float Friction)
 {
-	FRecallPhysicsHeightFieldShape LandscapeShape;
+	FJPRPhysicsHeightFieldShape LandscapeShape;
 	LandscapeShape.Scale = Landscape.GetActorScale3D();
 	Landscape.GetHeightValues(LandscapeShape.SizeX, LandscapeShape.SizeY, LandscapeShape.Heights);
 	
@@ -294,7 +294,7 @@ void CreateStaticMeshEntity(URecallPhysicsSubsystem& PhysicsSystem, AStaticMeshA
 	TArray<FVector2D> SectionUVs;
 	TArray<FProcMeshTangent> SectionTangents;
 
-	FRecallPhysicsMeshShape MeshShape;
+	FJPRPhysicsMeshShape MeshShape;
 		
 	for (int32 SectionIndex = 0; SectionIndex < NumSections; SectionIndex++)
 	{
@@ -386,9 +386,9 @@ void GenerateSplineMeshAlongSpline(
 }
 
 void InitializePhysicsBody(FMassExecutionContext& Context, const FMassEntityHandle& Entity,
-	URecallPhysicsSubsystem& PhysicsSystem, const FRecallPhysicsBodyFragment& BodyFragment, const FJPRPhysicsBodyParameters& BodyParams)
+	URecallPhysicsSubsystem& PhysicsSystem, const FJPRPhysicsBodyFragment& BodyFragment, const FJPRPhysicsBodyParameters& BodyParams)
 {
-	const FRecallPhysicsBodyView PhysicsBody = PhysicsSystem.GetMutableBody(BodyFragment.BodyHandle);
+	const FJPRPhysicsBodyView PhysicsBody = PhysicsSystem.GetMutableBody(BodyFragment.BodyHandle);
 
 	if (ensureMsgf(PhysicsBody.IsValid(), TEXT("Body does not exist.")) == false)
 	{
@@ -454,9 +454,9 @@ void Teleport(const FMassEntityManager& EntityManager, const FMassEntityHandle& 
 	}
 	
 	// Update physics body if present
-	if (const FRecallPhysicsBodyFragment* PhysicsBodyFragment = EntityView.GetFragmentDataPtr<FRecallPhysicsBodyFragment>())
+	if (const FJPRPhysicsBodyFragment* PhysicsBodyFragment = EntityView.GetFragmentDataPtr<FJPRPhysicsBodyFragment>())
 	{
-		const FRecallPhysicsBodyView PhysicsBody = PhysicsSubsystem.GetMutableBody(PhysicsBodyFragment->BodyHandle);
+		const FJPRPhysicsBodyView PhysicsBody = PhysicsSubsystem.GetMutableBody(PhysicsBodyFragment->BodyHandle);
 		if (PhysicsBody.IsValid())
 		{
 			PhysicsBody.SetPosition(NewPosition);

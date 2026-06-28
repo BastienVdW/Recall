@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2024 Van de Walle Bastien
+// Copyright (C) 2024 Van de Walle Bastien
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -9,7 +9,7 @@
 
 #include "MassEntityTemplateRegistry.h"
 #include "MassEntityUtils.h"
-#include "Physics/Character/RecallPhysicsCharacterShapeTypes.h"
+#include "Physics/Character/JPRPhysicsCharacterShapeTypes.h"
 #include "Simulation/Physics/RecallPhysicsBodyFragment.h"
 #include "Simulation/Physics/RecallPhysicsCharacterFragments.h"
 
@@ -23,9 +23,9 @@ void URecallCharacterCollisionTrait::BuildTemplate(FMassEntityTemplateBuildConte
 
 	FMassEntityManager& EntityManager = UE::Mass::Utils::GetEntityManagerChecked(World);
 
-	BuildContext.AddFragment<FRecallPhysicsCharacterFragment>();
+	BuildContext.AddFragment<FJPRPhysicsCharacterFragment>();
 
-	FRecallPhysicsCharacterShapeConstSharedFragment CharacterFragment;
+	FJPRPhysicsCharacterShapeConstSharedFragment CharacterFragment;
 	CharacterFragment.Shape = CharacterShape;
 	CharacterFragment.Params = Params;
 
@@ -48,11 +48,11 @@ void URecallCharacterVirtualCollisionTrait::BuildTemplate(FMassEntityTemplateBui
 {
 	Super::BuildTemplate(BuildContext, World);
 
-	BuildContext.AddFragment<FRecallPhysicsCharacterFragment>();
+	BuildContext.AddFragment<FJPRPhysicsCharacterFragment>();
 	
 	FMassEntityManager& EntityManager = UE::Mass::Utils::GetEntityManagerChecked(World);
 
-	FRecallPhysicsCharacterVirtualShapeConstSharedFragment CharacterFragment;
+	FJPRPhysicsCharacterVirtualShapeConstSharedFragment CharacterFragment;
 	CharacterFragment.Shape = CharacterVirtualShape;
 	CharacterFragment.Params = Params;
 

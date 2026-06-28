@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2024 Van de Walle Bastien
+// Copyright (C) 2024 Van de Walle Bastien
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -13,7 +13,7 @@
 #define INVALID_PHYSICS_BODY_SERIAL_NUMBER 0
 
 USTRUCT()
-struct RECALLPHYSICSMODULE_API FRecallPhysicsBodyHandle
+struct RECALLPHYSICSMODULE_API FJPRPhysicsBodyHandle
 {
 	GENERATED_BODY()
 
@@ -30,15 +30,15 @@ struct RECALLPHYSICSMODULE_API FRecallPhysicsBodyHandle
 		return IsSet();
 	}
 
-	friend uint32 GetTypeHash(const FRecallPhysicsBodyHandle& Handle)
+	friend uint32 GetTypeHash(const FJPRPhysicsBodyHandle& Handle)
 	{
 		return Handle.SerialNumber;
 	}
 
-	static FRecallPhysicsBodyHandle Invalid() { return FRecallPhysicsBodyHandle(); }
+	static FJPRPhysicsBodyHandle Invalid() { return FJPRPhysicsBodyHandle(); }
 
-	bool operator!=(const FRecallPhysicsBodyHandle& Other) const { return !(*this == Other); }
-	bool operator==(const FRecallPhysicsBodyHandle& Other) const
+	bool operator!=(const FJPRPhysicsBodyHandle& Other) const { return !(*this == Other); }
+	bool operator==(const FJPRPhysicsBodyHandle& Other) const
 	{
 		return SerialNumber == Other.SerialNumber;
 	}

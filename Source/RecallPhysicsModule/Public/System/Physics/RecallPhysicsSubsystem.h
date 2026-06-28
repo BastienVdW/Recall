@@ -23,7 +23,7 @@
 DECLARE_LOG_CATEGORY_EXTERN(LogRecallPhysics, Log, All);
 
 class UJPRPhysicsObjectFactory;
-struct FRecallPhysicsBodySnapshot;
+struct FJPRPhysicsBodySnapshot;
 
 UCLASS()
 class RECALLPHYSICSMODULE_API URecallPhysicsSubsystem : public UJPRPhysicsSubsystem, public IRecallSimulationReactSystemInterface
@@ -32,12 +32,12 @@ class RECALLPHYSICSMODULE_API URecallPhysicsSubsystem : public UJPRPhysicsSubsys
 
 public:
 	template<typename T=FJPRPhysicsShape>
-	FRecallPhysicsBodyHandle CreateShape(const FMassEntityHandle& Entity, const T& Shape, const FJPRPhysicsBodyParameters& Params)
+	FJPRPhysicsBodyHandle CreateShape(const FMassEntityHandle& Entity, const T& Shape, const FJPRPhysicsBodyParameters& Params)
 	{
 		// Make sure that we do not call this outside of the simulation.
 		CheckSimulationProcessingPhase();
 		
-		FRecallPhysicsBodyHandle Handle;
+		FJPRPhysicsBodyHandle Handle;
 		CreateShape_Internal(Entity, FInstancedStruct::Make<T>(Shape), Shape.FactoryClass, Params, Handle);
 		return Handle;
 	}
@@ -49,28 +49,28 @@ public:
 	}
 
 	template<typename T=FJPRPhysicsShape>
-	FRecallPhysicsBodyHandle CreateMutableStaticShape(const T& Shape, const FVector& Location, const FQuat& Rotation, float Friction)
+	FJPRPhysicsBodyHandle CreateMutableStaticShape(const T& Shape, const FVector& Location, const FQuat& Rotation, float Friction)
 	{
 		return CreateMutableStaticShape_Internal(FInstancedStruct::Make<T>(Shape), Location, Rotation, Shape.FactoryClass, Friction);
 	}
 
-	void CreateFixedConstrain(const FRecallPhysicsBodyHandle& Handle1, const FRecallPhysicsBodyHandle& Handle2);
-	void RemoveAllConstrains(const FRecallPhysicsBodyHandle& Handle1, const FRecallPhysicsBodyHandle& Handle2);
+	void CreateFixedConstrain(const FJPRPhysicsBodyHandle& Handle1, const FJPRPhysicsBodyHandle& Handle2);
+	void RemoveAllConstrains(const FJPRPhysicsBodyHandle& Handle1, const FJPRPhysicsBodyHandle& Handle2);
 
-	void ReleaseBody(const FRecallPhysicsBodyHandle& Handle);
-	FRecallPhysicsBodyView GetMutableBody(const FRecallPhysicsBodyHandle& Handle);
-	FConstRecallPhysicsBodyView GetBody(const FRecallPhysicsBodyHandle& Handle) const;
+	void ReleaseBody(const FJPRPhysicsBodyHandle& Handle);
+	FJPRPhysicsBodyView GetMutableBody(const FJPRPhysicsBodyHandle& Handle);
+	FConstRecallPhysicsBodyView GetBody(const FJPRPhysicsBodyHandle& Handle) const;
 
-	void SetLayerOverride(const FRecallPhysicsBodyHandle& Handle, uint16 Layer);
-	void ClearLayerOverride(const FRecallPhysicsBodyHandle& Handle);
-	bool HasLayerOverride(const FRecallPhysicsBodyHandle& Handle) const;
+	void SetLayerOverride(const FJPRPhysicsBodyHandle& Handle, uint16 Layer);
+	void ClearLayerOverride(const FJPRPhysicsBodyHandle& Handle);
+	bool HasLayerOverride(const FJPRPhysicsBodyHandle& Handle) const;
 
-	void SetMotionType(const FRecallPhysicsBodyHandle& Handle, EJPRPhysicsMotionType MotionType, EJPRPhysicsActivation ActivationMode = EJPRPhysicsActivation::Activate);
-	void ResetMotionType(const FRecallPhysicsBodyHandle& Handle);
+	void SetMotionType(const FJPRPhysicsBodyHandle& Handle, EJPRPhysicsMotionType MotionType, EJPRPhysicsActivation ActivationMode = EJPRPhysicsActivation::Activate);
+	void ResetMotionType(const FJPRPhysicsBodyHandle& Handle);
 
-	void GenerateHitEvents(const TSet<FRecallPhysicsBodyHandle>& GeneratesHitEventsBodyHandles);
-	TArray<FRecallPhysicsHitEvent> GetHitEvents(const FRecallPhysicsBodyHandle& Handle) const;
-	bool HasHitEvent(const FRecallPhysicsBodyHandle& Handle) const;
+	void GenerateHitEvents(const TSet<FJPRPhysicsBodyHandle>& GeneratesHitEventsBodyHandles);
+	TArray<FRecallPhysicsHitEvent> GetHitEvents(const FJPRPhysicsBodyHandle& Handle) const;
+	bool HasHitEvent(const FJPRPhysicsBodyHandle& Handle) const;
 	void ResetHitEvents();
 
 	int32 GetNumContactEvents() const;
@@ -110,12 +110,12 @@ protected:
 	void CreateStaticShape_Internal(const FInstancedStruct& Shape, const FVector& Location, const FQuat& Rotation,
 		const TSubclassOf<UJPRPhysicsObjectFactory>& FactoryClass, float Friction);
 
-	FRecallPhysicsBodyHandle CreateMutableStaticShape_Internal(const FInstancedStruct& Shape, const FVector& Location,
+	FJPRPhysicsBodyHandle CreateMutableStaticShape_Internal(const FInstancedStruct& Shape, const FVector& Location,
 		const FQuat& Rotation, const TSubclassOf<UJPRPhysicsObjectFactory>& FactoryClass, float Friction);
 
 	void CreateShape_Internal(const FMassEntityHandle& Entity, const FInstancedStruct& Shape,
 		const TSubclassOf<UJPRPhysicsObjectFactory>& FactoryClass, const FJPRPhysicsBodyParameters& Params,
-		FRecallPhysicsBodyHandle& Handle);
+		FJPRPhysicsBodyHandle& Handle);
 	void CheckSimulationProcessingPhase() const;
 	
 protected:
@@ -124,7 +124,7 @@ protected:
 	uint32 SerialNumberGenerator{ 0 };
 
 protected:
-	struct FRecallPhysicsBodyRef
+	struct FJPRPhysicsBodyRef
 	{
 		FMassEntityHandle Entity;
 		TSharedPtr<FJPRPhysicsBody> Body;
@@ -134,15 +134,15 @@ protected:
 		TUniquePtr<uint16> LayerOverride;
 		TUniquePtr<EJPRPhysicsMotionType> MotionTypeOverride;
 	};
-	TMap<FRecallPhysicsBodyHandle, FRecallPhysicsBodyRef> BodyRefMap;
-	TMap<uint32, FRecallPhysicsBodyHandle> BodyHandleMap;
+	TMap<FJPRPhysicsBodyHandle, FJPRPhysicsBodyRef> BodyRefMap;
+	TMap<uint32, FJPRPhysicsBodyHandle> BodyHandleMap;
 
 	TSet<FRecallPhysicsConstrainHandle> ConstrainRefs;
 
-	void AddConstrainRef_Internal(const FRecallPhysicsBodyHandle& Handle1, const FRecallPhysicsBodyHandle& Handle2);
-	void RemoveConstrainRef_Internal(const FRecallPhysicsBodyHandle& Handle1, const FRecallPhysicsBodyHandle& Handle2);
+	void AddConstrainRef_Internal(const FJPRPhysicsBodyHandle& Handle1, const FJPRPhysicsBodyHandle& Handle2);
+	void RemoveConstrainRef_Internal(const FJPRPhysicsBodyHandle& Handle1, const FJPRPhysicsBodyHandle& Handle2);
 
-	TMap<FRecallPhysicsBodyHandle, TArray<FRecallPhysicsHitEvent>> HitEvents;
+	TMap<FJPRPhysicsBodyHandle, TArray<FRecallPhysicsHitEvent>> HitEvents;
 
 protected:
 	UPROPERTY(Transient)
@@ -154,18 +154,18 @@ protected:
 	mutable FCriticalSection HitEventGuard;
 
 	template<typename ShapeType>
-	FRecallPhysicsBodyHandle RegisterPhysicsBody(const FMassEntityHandle& Entity, const TSharedPtr<FJPRPhysicsBody>& Body, const ShapeType& Shape)
+	FJPRPhysicsBodyHandle RegisterPhysicsBody(const FMassEntityHandle& Entity, const TSharedPtr<FJPRPhysicsBody>& Body, const ShapeType& Shape)
 	{
-		FRecallPhysicsBodyHandle Handle;
+		FJPRPhysicsBodyHandle Handle;
 		RegisterPhysicsBody_Internal(Entity, Body, FInstancedStruct::Make<ShapeType>(Shape), Handle);
 		return Handle;
 	}
 
-	void ReleaseBody_Internal(const FRecallPhysicsBodyHandle& Handle, bool bCleanUp = false);
+	void ReleaseBody_Internal(const FJPRPhysicsBodyHandle& Handle, bool bCleanUp = false);
 
 	void OnActorsInitialized(const FActorsInitializedParams& Params);
 
-	FRecallPhysicsBodySnapshot TakeBodySnapshot(const FRecallPhysicsBodyHandle& Handle) const;
+	FJPRPhysicsBodySnapshot TakeBodySnapshot(const FJPRPhysicsBodyHandle& Handle) const;
 	friend class UJPRPhysicsObjectFactory;
 
 };

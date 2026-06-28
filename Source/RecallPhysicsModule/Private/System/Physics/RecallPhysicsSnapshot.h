@@ -17,7 +17,7 @@
 #define INVALID_PHYSICS_BODY_ID 0xffffffff
 
 USTRUCT()
-struct FRecallPhysicsBodySnapshot
+struct FJPRPhysicsBodySnapshot
 {
 	GENERATED_BODY()
 
@@ -58,7 +58,7 @@ struct FRecallPhysicsSnapshot
 	uint32 SerialNumberGenerator{ INVALID_PHYSICS_BODY_SERIAL_NUMBER };
 
 	UPROPERTY(VisibleAnywhere)
-	TMap<FRecallPhysicsBodyHandle, FRecallPhysicsBodySnapshot> Bodies;
+	TMap<FJPRPhysicsBodyHandle, FJPRPhysicsBodySnapshot> Bodies;
 	
 	UPROPERTY(VisibleAnywhere)
 	TSet<FRecallPhysicsConstrainHandle> Constrains;

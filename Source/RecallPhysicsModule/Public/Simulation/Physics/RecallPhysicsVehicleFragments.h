@@ -7,7 +7,7 @@
 #pragma once
 
 #include "Mass/EntityElementTypes.h"
-#include "Physics/Vehicle/RecallPhysicsVehicleShapeTypes.h"
+#include "Physics/Vehicle/JPRPhysicsVehicleShapeTypes.h"
 
 #include "RecallPhysicsVehicleFragments.generated.h"
 
@@ -47,7 +47,7 @@ struct RECALLPHYSICSMODULE_API FRecallPhysicsVehicleConstSharedFragment : public
 	GENERATED_BODY()
 
 	UPROPERTY(VisibleAnywhere)
-	FRecallPhysicsVehicleShape Shape;
+	FJPRPhysicsVehicleShape Shape;
 
 	UPROPERTY(VisibleAnywhere)
 	FJPRPhysicsBodyParameters Params;

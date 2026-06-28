@@ -8,29 +8,29 @@
 
 #include "Mass/EntityElementTypes.h"
 #include "Physics/RecallPhysicsTypes.h"
-#include "Physics/Common/RecallPhysicsCommonShapeTypes.h"
+#include "Physics/Common/JPRPhysicsCommonShapeTypes.h"
 
 #include "RecallPhysicsColliderFragments.generated.h"
 
 USTRUCT()
-struct RECALLPHYSICSMODULE_API FRecallPhysicsBoxShapeFragment : public FMassConstSharedFragment
+struct RECALLPHYSICSMODULE_API FJPRPhysicsBoxShapeFragment : public FMassConstSharedFragment
 {
 	GENERATED_BODY()
 		
 	UPROPERTY(VisibleAnywhere)
-	FRecallPhysicsBoxShape Shape;
+	FJPRPhysicsBoxShape Shape;
 	
 	UPROPERTY(VisibleAnywhere)
 	FJPRPhysicsBodyParameters Params;
 };
 
 USTRUCT()
-struct RECALLPHYSICSMODULE_API FRecallPhysicsSphereShapeFragment : public FMassConstSharedFragment
+struct RECALLPHYSICSMODULE_API FJPRPhysicsSphereShapeFragment : public FMassConstSharedFragment
 {
 	GENERATED_BODY()
 		
 	UPROPERTY(VisibleAnywhere)
-	FRecallPhysicsSphereShape Shape;
+	FJPRPhysicsSphereShape Shape;
 	
 	UPROPERTY(VisibleAnywhere)
 	FJPRPhysicsBodyParameters Params;
@@ -42,7 +42,7 @@ struct RECALLPHYSICSMODULE_API FRecallPhysicsCapsuleFragment : public FMassConst
 	GENERATED_BODY()
 		
 	UPROPERTY(VisibleAnywhere)
-	FRecallPhysicsCapsuleShape Shape;
+	FJPRPhysicsCapsuleShape Shape;
 	
 	UPROPERTY(VisibleAnywhere)
 	FJPRPhysicsBodyParameters Params;
@@ -75,7 +75,7 @@ struct RECALLPHYSICSMODULE_API FRecallPhysicsMeshConstSharedFragment : public FM
 	bool bConvexHull = true;
 	
 	UPROPERTY(VisibleAnywhere)
-	FRecallPhysicsMeshShapeSettings MeshShapeSettings;
+	FJPRPhysicsMeshShapeSettings MeshShapeSettings;
 };
 
 USTRUCT()
@@ -84,7 +84,7 @@ struct RECALLPHYSICSMODULE_API FRecallPhysicsHeightFieldConstSharedFragment : pu
 	GENERATED_BODY()
 
 	UPROPERTY(VisibleAnywhere)
-	FRecallPhysicsHeightFieldShape Shape;
+	FJPRPhysicsHeightFieldShape Shape;
 	
 	UPROPERTY(VisibleAnywhere)
 	FVector Location = FVector::ZeroVector;

@@ -24,8 +24,8 @@ void URecallSphereCollisionTrait::BuildTemplate(FMassEntityTemplateBuildContext&
 
 	FMassEntityManager& EntityManager = UE::Mass::Utils::GetEntityManagerChecked(World);
 
-	FRecallPhysicsSphereShapeFragment SphereShapeFragment;
-	SphereShapeFragment.Shape = FRecallPhysicsSphereShape(SphereRadius);
+	FJPRPhysicsSphereShapeFragment SphereShapeFragment;
+	SphereShapeFragment.Shape = FJPRPhysicsSphereShape(SphereRadius);
 	SphereShapeFragment.Params = Params;
 
 	BuildContext.AddConstSharedFragment(EntityManager.GetOrCreateConstSharedFragment(SphereShapeFragment));
@@ -40,8 +40,8 @@ void URecallBoxCollisionTrait::BuildTemplate(FMassEntityTemplateBuildContext& Bu
 
 	FMassEntityManager& EntityManager = UE::Mass::Utils::GetEntityManagerChecked(World);
 
-	FRecallPhysicsBoxShapeFragment BoxFragment;
-	BoxFragment.Shape = FRecallPhysicsBoxShape(Extents);
+	FJPRPhysicsBoxShapeFragment BoxFragment;
+	BoxFragment.Shape = FJPRPhysicsBoxShape(Extents);
 	BoxFragment.Params = Params;
 
 	BuildContext.AddConstSharedFragment(EntityManager.GetOrCreateConstSharedFragment(BoxFragment));
@@ -57,7 +57,7 @@ void URecallCapsuleCollisionTrait::BuildTemplate(FMassEntityTemplateBuildContext
 	FMassEntityManager& EntityManager = UE::Mass::Utils::GetEntityManagerChecked(World);
 
 	FRecallPhysicsCapsuleFragment CapsuleFragment;
-	CapsuleFragment.Shape = FRecallPhysicsCapsuleShape(Radius, HalfHeight);
+	CapsuleFragment.Shape = FJPRPhysicsCapsuleShape(Radius, HalfHeight);
 	CapsuleFragment.Params = Params;
 
 	BuildContext.AddConstSharedFragment(EntityManager.GetOrCreateConstSharedFragment(CapsuleFragment));

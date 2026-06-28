@@ -7,7 +7,7 @@
 #pragma once
 
 #include "Mass/EntityElementTypes.h"
-#include "Physics/Common/RecallPhysicsCommonShapeTypes.h"
+#include "Physics/Common/JPRPhysicsCommonShapeTypes.h"
 #include "Physics/RecallPhysicsBodyHandle.h"
 #include "Physics/RecallPhysicsTypes.h"
 
@@ -22,7 +22,7 @@ struct RECALLPHYSICSMODULE_API FRecallSensorFragment : public FMassFragment
 	GENERATED_BODY()
 
 	UPROPERTY(VisibleAnywhere)
-	TArray<FRecallPhysicsBodyHandle> BodyHandles;
+	TArray<FJPRPhysicsBodyHandle> BodyHandles;
 };
 
 template <>
@@ -40,7 +40,7 @@ struct RECALLPHYSICSMODULE_API FRecallSensorInstanceParameters
 	FName SensorName = NAME_None;
 
 	UPROPERTY(VisibleAnywhere)
-	FRecallPhysicsSphereShape Shape;
+	FJPRPhysicsSphereShape Shape;
 
 	UPROPERTY(VisibleAnywhere)
 	FJPRPhysicsBodyParameters Params;

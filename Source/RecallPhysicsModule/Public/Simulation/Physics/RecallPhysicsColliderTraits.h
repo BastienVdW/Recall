@@ -7,7 +7,7 @@
 #pragma once
 
 #include "RecallPhysicsBodyTrait.h"
-#include "Physics/Common/RecallPhysicsCommonShapeTypes.h"
+#include "Physics/Common/JPRPhysicsCommonShapeTypes.h"
 
 #include "RecallPhysicsColliderTraits.generated.h"
 
@@ -92,7 +92,7 @@ protected:
 	bool bConvexHull = true;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Shape, meta=(EditCondition="!bConvexHull", ShowOnlyInnerProperties))
-	FRecallPhysicsMeshShapeSettings MeshShapeSettings;
+	FJPRPhysicsMeshShapeSettings MeshShapeSettings;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Shape)
 	bool bUseActorScale = true;

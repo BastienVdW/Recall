@@ -7,14 +7,14 @@
 #pragma once
 
 #include "Mass/EntityElementTypes.h"
-#include "Physics/Character/RecallPhysicsCharacterShapeTypes.h"
-#include "Physics/Character/RecallPhysicsCharacterTypes.h"
+#include "Physics/Character/JPRPhysicsCharacterShapeTypes.h"
+#include "Physics/Character/JPRPhysicsCharacterTypes.h"
 #include "Physics/RecallPhysicsTypes.h"
 
 #include "RecallPhysicsCharacterFragments.generated.h"
 
 USTRUCT()
-struct RECALLPHYSICSMODULE_API FRecallPhysicsCharacterFragment :
+struct RECALLPHYSICSMODULE_API FJPRPhysicsCharacterFragment :
 	public FMassFragment
 {
 	GENERATED_BODY()
@@ -23,30 +23,30 @@ struct RECALLPHYSICSMODULE_API FRecallPhysicsCharacterFragment :
 	bool bIsSupported = true;
 
 	UPROPERTY(VisibleAnywhere)
-	ERecallPhysicsCharacterGroundState GroundState = ERecallPhysicsCharacterGroundState::OnGround;
+	EJPRPhysicsCharacterGroundState GroundState = EJPRPhysicsCharacterGroundState::OnGround;
 };
 
 USTRUCT()
-struct RECALLPHYSICSMODULE_API FRecallPhysicsCharacterShapeConstSharedFragment :
+struct RECALLPHYSICSMODULE_API FJPRPhysicsCharacterShapeConstSharedFragment :
 	public FMassConstSharedFragment
 {
 	GENERATED_BODY()
 		
 	UPROPERTY(VisibleAnywhere)
-	FRecallPhysicsCharacter Shape;
+	FJPRPhysicsCharacter Shape;
 	
 	UPROPERTY(VisibleAnywhere)
 	FJPRPhysicsBodyParameters Params;
 };
 
 USTRUCT()
-struct RECALLPHYSICSMODULE_API FRecallPhysicsCharacterVirtualShapeConstSharedFragment :
+struct RECALLPHYSICSMODULE_API FJPRPhysicsCharacterVirtualShapeConstSharedFragment :
 	public FMassConstSharedFragment
 {
 	GENERATED_BODY()
 		
 	UPROPERTY(VisibleAnywhere)
-	FRecallPhysicsCharacterVirtual Shape;
+	FJPRPhysicsCharacterVirtual Shape;
 	
 	UPROPERTY(VisibleAnywhere)
 	FJPRPhysicsBodyParameters Params;
