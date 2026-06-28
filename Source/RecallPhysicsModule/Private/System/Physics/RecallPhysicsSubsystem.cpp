@@ -33,7 +33,6 @@ DEFINE_LOG_CATEGORY(LogRecallPhysics);
 #include <Jolt/Jolt.h>
 
 // Jolt includes
-#include <Jolt/Physics/Body/BodyActivationListener.h>
 #include <Jolt/Physics/PhysicsSystem.h>
 #include <Jolt/Physics/StateRecorderImpl.h>
 
@@ -80,151 +79,6 @@ static bool AssertFailedImpl(const char* inExpression, const char* inMessage, co
 };
 
 #endif // JPH_ENABLE_ASSERTS
-
-struct FRecallContactEvent
-{
-	FRecallContactEvent(const Body& inBody1, const Body& inBody2, const ContactManifold& inManifold)
-		: BodyID1(inBody1.GetID())
-		, BodyID2(inBody2.GetID())
-		, Vel1(inBody1.GetLinearVelocity())
-		, Vel2(inBody2.GetLinearVelocity())
-		, bIsStatic1(inBody1.IsStatic())
-		, bIsStatic2(inBody2.IsStatic())
-		, bIsSensor1(inBody1.IsSensor())
-		, bIsSensor2(inBody2.IsSensor())
-		, ImpactPoint1(inManifold.GetWorldSpaceContactPointOn1(0))
-		, ImpactPoint2(inManifold.GetWorldSpaceContactPointOn2(0))
-		, ImpactNormal1(inManifold.mWorldSpaceNormal)
-		, ImpactNormal2(inManifold.SwapShapes().mWorldSpaceNormal)
-		, SubShapeID1(inManifold.mSubShapeID1.GetValue())
-		, SubShapeID2(inManifold.mSubShapeID2.GetValue())
-	{
-	}
-
-	const BodyID BodyID1;
-	const BodyID BodyID2;
-	const Vec3 Vel1;
-	const Vec3 Vel2;
-	const bool bIsStatic1;
-	const bool bIsStatic2;
-	const bool bIsSensor1;
-	const bool bIsSensor2;
-	const Vec3 ImpactPoint1;
-	const Vec3 ImpactPoint2;
-	const Vec3 ImpactNormal1;
-	const Vec3 ImpactNormal2;
-	const uint32 SubShapeID1;
-	const uint32 SubShapeID2;
-};
-
-/// User callbacks that allow determining which parts of the simulation should be saved by a StateRecorder
-class FRecallStateRecorderFilter : public StateRecorderFilter
-{
-public:
-	FRecallStateRecorderFilter(const URecallPhysicsSubsystem& inPhysicsSystem)
-		: PhysicsSystem(inPhysicsSystem)
-	{
-	}
-
-protected:
-	///@}
-	///@name Functions called during SaveState
-	///@{
-
-	/// If the state of a specific body should be saved
-	virtual bool		ShouldSaveBody([[maybe_unused]] const Body& inBody) const override
-	{
-		// For static bodies, check if they should be restored based on entity system
-		if (inBody.IsStatic() && !inBody.CanBeKinematicOrDynamic())
-		{
-			const uint32 BodyID = inBody.GetID().GetIndexAndSequenceNumber();
-			return PhysicsSystem.ShouldRestorePhysicsBody(BodyID);
-		}
-		
-		// Non-static bodies should always be saved
-		return true;
-	}
-
-	/// If the state of a specific constraint should be saved
-	virtual bool		ShouldSaveConstraint([[maybe_unused]] const Constraint& inConstraint) const override
-	{
-		return true;
-	}
-
-	/// If the state of a specific contact should be saved
-	virtual bool		ShouldSaveContact([[maybe_unused]] const BodyID& inBody1, [[maybe_unused]] const BodyID& inBody2) const override
-	{
-		return true;
-	}
-
-	///@}
-	///@name Functions called during RestoreState
-	///@{
-
-	/// If the state of a specific contact should be restored
-	virtual bool		ShouldRestoreContact([[maybe_unused]] const BodyID& inBody1, [[maybe_unused]] const BodyID& inBody2) const override
-	{
-		return true;
-	}
-
-private:
-	const URecallPhysicsSubsystem& PhysicsSystem;
-};
-
-// An example contact listener
-class FRecallContactListener : public ContactListener
-{
-public:
-	// See: ContactListener
-	virtual ValidateResult	OnContactValidate(const Body& inBody1, const Body& inBody2, RVec3Arg inBaseOffset, const CollideShapeResult& inCollisionResult) override
-	{
-		UE_LOG(LogRecallPhysics, VeryVerbose, TEXT("Contact validate callback"));
-
-		// Allows you to ignore a contact before it is created (using layers to not make objects collide is cheaper!)
-		return ValidateResult::AcceptAllContactsForThisBodyPair;
-	}
-
-	virtual void			OnContactAdded(const Body& inBody1, const Body& inBody2, const ContactManifold& inManifold, ContactSettings& ioSettings) override
-	{
-		UE_LOG(LogRecallPhysics, VeryVerbose, TEXT("A contact was added"));
-
-		FScopeLock Lock(&DataGuard);
-		contact_events.Add(FRecallContactEvent(inBody1, inBody2, inManifold));
-	}
-
-	virtual void			OnContactPersisted(const Body& inBody1, const Body& inBody2, const ContactManifold& inManifold, ContactSettings& ioSettings) override
-	{
-		UE_LOG(LogRecallPhysics, VeryVerbose, TEXT("A contact was persisted"));
-
-		FScopeLock Lock(&DataGuard);
-		contact_events.Add(FRecallContactEvent(inBody1, inBody2, inManifold));
-	}
-
-	virtual void			OnContactRemoved(const SubShapeIDPair& inSubShapePair) override
-	{
-		UE_LOG(LogRecallPhysics, VeryVerbose, TEXT("A contact was removed"));
-	}
-
-	TArray<FRecallContactEvent> contact_events;
-
-private:
-	FCriticalSection DataGuard;
-};
-
-// An example activation listener
-class FRecallBodyActivationListener : public BodyActivationListener
-{
-public:
-	virtual void		OnBodyActivated(const BodyID& inBodyID, uint64 inBodyUserData) override
-	{
-		UE_LOG(LogRecallPhysics, Verbose, TEXT("A body got activated"));
-	}
-
-	virtual void		OnBodyDeactivated(const BodyID& inBodyID, uint64 inBodyUserData) override
-	{
-		UE_LOG(LogRecallPhysics, Verbose, TEXT("A body went to sleep"));
-	}
-};
 
 struct FRecallPhysicsHit
 {
@@ -598,15 +452,9 @@ void URecallPhysicsSubsystem::GenerateHitEvents(const TSet<FRecallPhysicsBodyHan
 	TRACE_CPUPROFILER_EVENT_SCOPE_STR(TEXT("URecallPhysicsSubsystem::GenerateHitEvents"));
 
 #if WITH_JOLT_PHYSICS
-	auto TryPushHitEvent = [&](uint32 HitID, const BodyID& BodyID1, const BodyID& BodyID2, const Vec3& Vel1, const Vec3& Vel2,
-		const Vec3& ImpactPoint, const Vec3& ImpactNormal, bool bHitStatic, bool bHitSensor)
+	auto TryPushHitEvent = [&](uint32 HitID, const uint32 Body1ID, const uint32 Body2ID, const FVector& Velocity,
+		const FVector& ImpactPoint, const FVector& ImpactNormal, bool bHitStatic, bool bHitSensor)
 	{
-		if (!ensure(!BodyID1.IsInvalid() && !BodyID2.IsInvalid()))
-		{
-			return;
-		}
-
-		const uint32 Body1ID = BodyID1.GetIndexAndSequenceNumber();
 		const FRecallPhysicsBodyHandle* Body1HandlePtr = BodyHandleMap.Find(Body1ID);
 
 		if (Body1HandlePtr == nullptr || !GeneratesHitEventsBodyHandles.Contains(*Body1HandlePtr))
@@ -614,7 +462,6 @@ void URecallPhysicsSubsystem::GenerateHitEvents(const TSet<FRecallPhysicsBodyHan
 			return;
 		}
 
-		const uint32 Body2ID = BodyID2.GetIndexAndSequenceNumber();
 		if (ShouldGenerateHitEvent(Body2ID) == false)
 		{
 			return;
@@ -640,12 +487,12 @@ void URecallPhysicsSubsystem::GenerateHitEvents(const TSet<FRecallPhysicsBodyHan
 			}
 		}
 
-		HitEvent.ImpactWorldLocation = JoltPhysicsToUnreal(FVector(ImpactPoint.GetX(), ImpactPoint.GetY(), ImpactPoint.GetZ()));
-		HitEvent.ImpactWorldNormal = JoltPhysicsToUnrealDirection(FVector(ImpactNormal.GetX(), ImpactNormal.GetY(), ImpactNormal.GetZ()));
+		HitEvent.ImpactWorldLocation = JoltPhysicsToUnreal(ImpactPoint);
+		HitEvent.ImpactWorldNormal = JoltPhysicsToUnrealDirection(ImpactNormal);
 		HitEvent.bHitStatic = bHitStatic;
 		HitEvent.bHitSensor = bHitSensor;
 
-		HitEvent.WorldVelocityAtImpact = JoltPhysicsToUnreal(FVector(Vel1.GetX(), Vel1.GetY(), Vel1.GetZ()));
+		HitEvent.WorldVelocityAtImpact = JoltPhysicsToUnreal(Velocity);
 
 		{
 			FScopeLock Lock(&HitEventGuard);
@@ -663,12 +510,13 @@ void URecallPhysicsSubsystem::GenerateHitEvents(const TSet<FRecallPhysicsBodyHan
 		}
 	};
 
-	if (contact_listener.IsValid())
+	TArray<FJPRContactEvent> ContactEvents = ConsumeContactEvents();
+	if (!ContactEvents.IsEmpty())
 	{
 		const uint32 Frame = Recall::Simulation::Utils::GetFrame(GetWorld());
-		UE_LOG(LogRecallPhysics, VeryVerbose, TEXT("[%d] Contacts: %d"), Frame, contact_listener->contact_events.Num());
+		UE_LOG(LogRecallPhysics, VeryVerbose, TEXT("[%d] Contacts: %d"), Frame, ContactEvents.Num());
 
-		contact_listener->contact_events.Sort([](const FRecallContactEvent& lContact, const FRecallContactEvent& rContact)
+		ContactEvents.Sort([](const FJPRContactEvent& lContact, const FJPRContactEvent& rContact)
 		{
 			if (lContact.BodyID1 == rContact.BodyID1)
 			{
@@ -685,18 +533,16 @@ void URecallPhysicsSubsystem::GenerateHitEvents(const TSet<FRecallPhysicsBodyHan
 			return lContact.BodyID1 < rContact.BodyID1;
 		});
 		
-		ParallelFor(contact_listener->contact_events.Num(), [&](int32 Index)
+		ParallelFor(ContactEvents.Num(), [&](int32 Index)
 			{
 				const uint32 HitID = Index * 2 + 1; // Start at 1
-				const FRecallContactEvent& ContactEvent = contact_listener->contact_events[Index];
-				TryPushHitEvent(HitID, ContactEvent.BodyID1, ContactEvent.BodyID2, ContactEvent.Vel1, ContactEvent.Vel2,
+				const FJPRContactEvent& ContactEvent = ContactEvents[Index];
+				TryPushHitEvent(HitID, ContactEvent.BodyID1, ContactEvent.BodyID2, ContactEvent.Velocity1,
 					ContactEvent.ImpactPoint2, ContactEvent.ImpactNormal2, ContactEvent.bIsStatic2, ContactEvent.bIsSensor2);
-				TryPushHitEvent(HitID + 1, ContactEvent.BodyID2, ContactEvent.BodyID1, ContactEvent.Vel2, ContactEvent.Vel1,
+				TryPushHitEvent(HitID + 1, ContactEvent.BodyID2, ContactEvent.BodyID1, ContactEvent.Velocity2,
 					ContactEvent.ImpactPoint1, ContactEvent.ImpactNormal1, ContactEvent.bIsStatic1, ContactEvent.bIsSensor1);
 			}
 		);
-
-		contact_listener->contact_events.Reset();
 	}
 #endif // WITH_JOLT_PHYSICS
 
@@ -744,13 +590,7 @@ void URecallPhysicsSubsystem::ResetHitEvents()
 
 int32 URecallPhysicsSubsystem::GetNumContactEvents() const
 {
-#if WITH_JOLT_PHYSICS
-	if (contact_listener.IsValid())
-	{
-		return contact_listener->contact_events.Num();
-	}
-#endif // WITH_JOLT_PHYSICS
-	return 0;
+	return GetNumPendingContactEvents();
 }
 
 TWeakObjectPtr<const UJPRPhysicsLayerDataAsset> URecallPhysicsSubsystem::GetPhysicsLayer() const
@@ -876,7 +716,7 @@ void URecallPhysicsSubsystem::CreateFixedConstrain(const FRecallPhysicsBodyHandl
 		return;
 	}
 
-	if (!CreateFixedConstraint(Body1.Pin()->GetBodyID(), Body2.Pin()->GetBodyID()))
+	if (!CreateFixedConstraint(Body1.Pin()->GetBodyID(), Body2.Pin()->GetBodyID(), Body1.Pin()->IsEnabled() && Body2.Pin()->IsEnabled()))
 	{
 		UE_LOG(LogRecallPhysics, Warning,
 			TEXT("%hs Failed to created fixed constrain"), __FUNCTION__);
@@ -1123,18 +963,8 @@ void URecallPhysicsSubsystem::CreatePhysicsSystem()
 	Trace = TraceImpl;
 	JPH_IF_ENABLE_ASSERTS(AssertFailed = AssertFailedImpl;)
 
-	// A body activation listener gets notified when bodies activate and go to sleep
-	// Note that this is called from a job so whatever you do here needs to be thread safe.
-	// Registering one is entirely optional.
-	body_activation_listener = MakeShared<FRecallBodyActivationListener>();
-
-	// A contact listener gets notified when bodies (are about to) collide, and when they separate again.
-	// Note that this is called from a job so whatever you do here needs to be thread safe.
-	// Registering one is entirely optional.
-	contact_listener = MakeShared<FRecallContactListener>();
-
-	UJPRPhysicsSubsystem::CreatePhysicsSystem(*PhysicsLayer, body_activation_listener.Get(), contact_listener.Get(),
-		MakeShared<FRecallStateRecorderFilter>(*this));
+	UJPRPhysicsSubsystem::CreatePhysicsSystem(*PhysicsLayer,
+		[this](const uint32 BodyID) { return ShouldRestorePhysicsBody(BodyID); });
 #endif // WITH_JOLT_PHYSICS
 }
 

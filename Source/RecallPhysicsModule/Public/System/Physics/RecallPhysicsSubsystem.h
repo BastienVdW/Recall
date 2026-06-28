@@ -33,8 +33,6 @@ namespace JPH
 	using ObjectLayer = uint16;
 } // namespace JPH
 
-class FRecallBodyActivationListener;
-class FRecallContactListener;
 #endif // WITH_JOLT_PHYSICS
 
 class URecallPhysicsObjectFactory;
@@ -156,11 +154,6 @@ protected:
 	uint32 SerialNumberGenerator{ 0 };
 
 protected:
-#if WITH_JOLT_PHYSICS
-	TSharedPtr<FRecallBodyActivationListener> body_activation_listener;
-	TSharedPtr<FRecallContactListener> contact_listener;
-#endif // WITH_JOLT_PHYSICS
-	
 	struct FRecallPhysicsBodyRef
 	{
 		FMassEntityHandle Entity;
