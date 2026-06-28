@@ -314,6 +314,8 @@ FRecallPhysicsBodySnapshot URecallPhysicsSubsystem::TakeBodySnapshot(const FReca
 
 void URecallPhysicsSubsystem::ReleasePhysicsObjects()
 {
+	CheckPhysicsAccess();
+	
 	for (auto It = ConstrainRefs.CreateConstIterator(); It; ++It)
 	{
 		RemoveAllConstrains(It->Body1, It->Body2);
@@ -337,7 +339,7 @@ void URecallPhysicsSubsystem::TickPhysics(float DeltaTime)
 
 		const UJPRPhysicsSettings* PhysicsSettings = GetDefault<UJPRPhysicsSettings>();
 		const float TimeDilatation = Recall::Slowmo::Utils::GetTimeDilatation(this);
-		StepPhysics(DeltaTime, PhysicsSettings->CollisionSteps, TimeDilatation);
+		StartPhysicsSimulation(DeltaTime, PhysicsSettings->CollisionSteps, TimeDilatation);
 	}
 }
 
@@ -538,6 +540,8 @@ FRecallPhysicsBodyHandle URecallPhysicsSubsystem::CreateMutableStaticShape_Inter
 	const FVector& Location, const FQuat& Rotation,
 	const TSubclassOf<UJPRPhysicsObjectFactory>& FactoryClass, float Friction)
 {
+	CheckPhysicsAccess();
+	
 	FJPRPhysicsBodyParameters Params;
 	Params.MotionType = EJPRPhysicsMotionType::Static;
 	Params.Friction = Friction;
@@ -568,6 +572,8 @@ void URecallPhysicsSubsystem::CreateShape_Internal(const FMassEntityHandle& Enti
 	const TSubclassOf<UJPRPhysicsObjectFactory>& FactoryClass, const FJPRPhysicsBodyParameters& Params,
 	FRecallPhysicsBodyHandle& Handle)
 {
+	CheckPhysicsAccess();
+	
 	// checkf(Entity.IsSet(),
 	// 	TEXT("%hs Use CreateStaticShape to create static shape without an entity"), __FUNCTION__);
 
@@ -662,6 +668,8 @@ void URecallPhysicsSubsystem::ReleaseBody(const FRecallPhysicsBodyHandle& Handle
 
 void URecallPhysicsSubsystem::ReleaseBody_Internal(const FRecallPhysicsBodyHandle& Handle, bool bCleanUp /*= false*/)
 {
+	CheckPhysicsAccess();
+	
 	FRecallPhysicsBodyRef BodyRef;
 	if (BodyRefMap.RemoveAndCopyValue(Handle, BodyRef))
 	{
@@ -675,6 +683,8 @@ void URecallPhysicsSubsystem::ReleaseBody_Internal(const FRecallPhysicsBodyHandl
 
 TWeakPtr<FRecallPhysicsBody> URecallPhysicsSubsystem::GetMutableBody(const FRecallPhysicsBodyHandle& Handle)
 {
+	CheckPhysicsAccess();
+	
 	Recall::Simulation::Utils::CheckSimulationProcessingPhase(this);
 
 	if (Handle.IsValid())
@@ -690,6 +700,8 @@ TWeakPtr<FRecallPhysicsBody> URecallPhysicsSubsystem::GetMutableBody(const FReca
 
 TWeakPtr<const FRecallPhysicsBody> URecallPhysicsSubsystem::GetBody(const FRecallPhysicsBodyHandle& Handle) const
 {
+	CheckPhysicsAccess();
+	
 	if (Handle.IsValid())
 	{
 		if (const FRecallPhysicsBodyRef* BodyRef = BodyRefMap.Find(Handle))
@@ -708,6 +720,8 @@ void URecallPhysicsSubsystem::OnActorsInitialized(const FActorsInitializedParams
 
 void URecallPhysicsSubsystem::SetLayerOverride(const FRecallPhysicsBodyHandle& Handle, uint16 Layer)
 {
+	CheckPhysicsAccess();
+	
 	FScopeLock Lock(&DataGuard);
 	if (FRecallPhysicsBodyRef* BodyRef = BodyRefMap.Find(Handle))
 	{
@@ -738,6 +752,8 @@ bool URecallPhysicsSubsystem::HasLayerOverride(const FRecallPhysicsBodyHandle& H
 
 void URecallPhysicsSubsystem::ClearLayerOverride(const FRecallPhysicsBodyHandle& Handle)
 {
+	CheckPhysicsAccess();
+	
 	FScopeLock Lock(&DataGuard);
 	if (FRecallPhysicsBodyRef* BodyRef = BodyRefMap.Find(Handle))
 	{

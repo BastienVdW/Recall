@@ -14,15 +14,14 @@ namespace Recall::Physics::ProcessorGroupNames
 	// StartPhysics
 	const FName Initialize = FName(TEXT("RecallPhysicsInitialize"));
 	const FName SensorAttachment = FName(TEXT("RecallSensorAttachment"));
-
-	// DuringPhysics
-	const FName Update = FName(TEXT("RecallPhysicsUpdate"));
-	const FName CharacterVirtualUpdate = FName(TEXT("RecallPhysicsCharacterVirtualUpdate"));
-	const FName CharacterPostUpdate = FName(TEXT("RecallPhysicsCharacterPostUpdate"));
+	const FName StartSimulation = FName(TEXT("RecallPhysicsStartSimulation"));
 
 	// EndPhysics
+	const FName EndSimulation = FName(TEXT("RecallPhysicsEndSimulation"));
 	const FName CopyLocation = FName(TEXT("RecallPhysicsCopyLocation"));
 	const FName GeneratesHitEvent = FName(TEXT("RecallPhysicsGeneratesHitEvent"));
+	const FName CharacterVirtualUpdate = FName(TEXT("RecallPhysicsCharacterVirtualUpdate"));
+	const FName CharacterPostUpdate = FName(TEXT("RecallPhysicsCharacterPostUpdate"));
 
 	// PostPhysics
 	const FName Overlap = FName(TEXT("RecallPhysicsOverlap"));

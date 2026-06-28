@@ -77,9 +77,9 @@ URecallPhysicsCharacterPostSimulationProcessor::URecallPhysicsCharacterPostSimul
 	: EntityQuery(*this)
 {
 	ExecutionFlags = static_cast<int32>(EProcessorExecutionFlags::All);
-	ProcessingPhase = EMassProcessingPhase::DuringPhysics;
+	ProcessingPhase = EMassProcessingPhase::EndPhysics;
 	ExecutionOrder.ExecuteInGroup = Recall::Physics::ProcessorGroupNames::CharacterPostUpdate;
-	ExecutionOrder.ExecuteAfter.Add(Recall::Physics::ProcessorGroupNames::Update);
+	ExecutionOrder.ExecuteAfter.Add(Recall::Physics::ProcessorGroupNames::EndSimulation);
 	ExecutionOrder.ExecuteAfter.Add(Recall::Physics::ProcessorGroupNames::CharacterVirtualUpdate);
 }
 
@@ -194,9 +194,9 @@ URecallPhysicsCharacterVirtualUpdateProcessor::URecallPhysicsCharacterVirtualUpd
 	: EntityQuery(*this)
 {
 	ExecutionFlags = static_cast<int32>(EProcessorExecutionFlags::All);
-	ProcessingPhase = EMassProcessingPhase::DuringPhysics;
+	ProcessingPhase = EMassProcessingPhase::EndPhysics;
 	ExecutionOrder.ExecuteInGroup = Recall::Physics::ProcessorGroupNames::CharacterVirtualUpdate;
-	ExecutionOrder.ExecuteAfter.Add(Recall::Physics::ProcessorGroupNames::Update);
+	ExecutionOrder.ExecuteAfter.Add(Recall::Physics::ProcessorGroupNames::EndSimulation);
 }
 
 void URecallPhysicsCharacterVirtualUpdateProcessor::InitializeInternal(UObject& Owner,

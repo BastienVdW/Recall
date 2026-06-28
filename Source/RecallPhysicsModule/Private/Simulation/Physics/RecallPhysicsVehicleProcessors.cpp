@@ -6,6 +6,7 @@
 
 
 #include "RecallPhysicsVehicleProcessors.h"
+#include "Simulation/Physics/RecallPhysicsProcessorGroupTypes.h"
 
 #include "MassExecutionContext.h"
 #include "Physics/Vehicle/RecallPhysicsVehicleObject.h"
@@ -71,6 +72,7 @@ URecallPhysicsVehicleProcessor::URecallPhysicsVehicleProcessor()
 {
 	ExecutionFlags = static_cast<int32>(EProcessorExecutionFlags::All);
 	ProcessingPhase = EMassProcessingPhase::StartPhysics;
+	ExecutionOrder.ExecuteBefore.Add(Recall::Physics::ProcessorGroupNames::StartSimulation);
 }
 
 void URecallPhysicsVehicleProcessor::InitializeInternal(UObject& Owner, const TSharedRef<FMassEntityManager>& InEntityManager)

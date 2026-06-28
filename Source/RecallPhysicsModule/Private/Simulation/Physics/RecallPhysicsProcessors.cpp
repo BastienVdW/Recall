@@ -22,6 +22,87 @@
 #include "Utility/Physics/RecallPhysicsUtils.h"
 #include "Utility/Simulation/RecallSimulationUtils.h"
 
+#if UE_BUILD_DEBUG || UE_BUILD_DEVELOPMENT
+static void ExecuteDumpPhysicsObject(FMassEntityQuery& EntityQuery, FMassExecutionContext& Context, const FString& ContextString)
+{
+#if RECALL_DESYNC_LOG
+	EntityQuery.ForEachEntityChunk(Context, ([&ContextString](FMassExecutionContext& Context)
+	{
+		const URecallPhysicsSubsystem& PhysicsSystem = Context.GetSubsystemChecked<URecallPhysicsSubsystem>();
+
+		const TConstArrayView<FRecallPhysicsBodyFragment> BodyList = Context.GetFragmentView<FRecallPhysicsBodyFragment>();
+
+		for (int32 EntityIndex = 0; EntityIndex < Context.GetNumEntities(); EntityIndex++)
+		{
+			const FMassEntityHandle Entity = Context.GetEntity(EntityIndex);
+			const FRecallPhysicsBodyFragment& BodyFragment = BodyList[EntityIndex];
+
+			const TWeakPtr<const FRecallPhysicsBody> PhysicsBody = PhysicsSystem.GetBody(BodyFragment.BodyHandle);
+			if (ensureMsgf(PhysicsBody.IsValid(), TEXT("Body does not exist.")) == false)
+			{
+				continue;
+			}
+			
+			if (PhysicsBody.Pin()->IsEnabled() == false)
+			{
+				continue;
+			}
+
+			FVector Position = FVector::ZeroVector;
+			FQuat Rotation = FQuat::Identity;
+			PhysicsBody.Pin()->GetPositionAndRotation(Position, Rotation);
+
+			const FVector Velocity = PhysicsBody.Pin()->GetLinearVelocity();
+			
+			RECALL_DESYNC_LOG_STR(Context.GetWorld(), PhysicsObject,
+				FString::Printf(TEXT("(%s) %s (%s) Position: %s, Rotation: %s, Velocity: %s"),
+				*ContextString, *Entity.DebugGetDescription(), *BodyFragment.BodyHandle.DebugGetDescription(),
+				*Position.ToString(), *Rotation.ToString(), *Velocity.ToString()));
+		}
+	}));
+#endif // RECALL_DESYNC_LOG
+	
+	if (!Recall::Physics::Utils::ShouldDebugDumpPhysicsObject())
+	{
+		return;
+	}
+
+	const uint32 Frame = Recall::Simulation::Utils::GetFrame(Context.GetWorld());
+
+	UE_LOG(LogRecallPhysics, Log, TEXT("//----------------------------------------------------------------------//"));
+	UE_LOG(LogRecallPhysics, Log, TEXT("//  [%d] %s"), Frame, *ContextString);
+	UE_LOG(LogRecallPhysics, Log, TEXT("//----------------------------------------------------------------------//"));
+
+	EntityQuery.ForEachEntityChunk(Context, ([](FMassExecutionContext& Context)
+	{
+		const URecallPhysicsSubsystem& PhysicsSystem = Context.GetSubsystemChecked<URecallPhysicsSubsystem>();
+
+		const TConstArrayView<FRecallPhysicsBodyFragment> BodyList = Context.GetFragmentView<FRecallPhysicsBodyFragment>();
+
+		for (int32 EntityIndex = 0; EntityIndex < Context.GetNumEntities(); EntityIndex++)
+		{
+			const FRecallPhysicsBodyFragment& BodyFragment = BodyList[EntityIndex];
+
+			const TWeakPtr<const FRecallPhysicsBody> PhysicsBody = PhysicsSystem.GetBody(BodyFragment.BodyHandle);
+			if (ensureMsgf(PhysicsBody.IsValid(), TEXT("Body does not exist.")) == false)
+			{
+				continue;
+			}
+
+			if (PhysicsBody.Pin()->IsEnabled() == false)
+			{
+				continue;
+			}
+
+			const TArray<FRecallPhysicsHitEvent> HitEvents = PhysicsSystem.GetHitEvents(BodyFragment.BodyHandle);
+			UE_LOG(LogRecallPhysics, Log, TEXT("Hit Count: %d"), HitEvents.Num());
+
+			PhysicsBody.Pin()->DumpObject();
+		}
+	}));
+}
+#endif // UE_BUILD_DEBUG || UE_BUILD_DEVELOPMENT
+
 //----------------------------------------------------------------------//
 // URecallPhysicsInitializerProcessor
 //----------------------------------------------------------------------//
@@ -102,27 +183,28 @@ void URecallPhysicsInitializerProcessor::Execute(FMassEntityManager& EntityManag
 }
 
 //----------------------------------------------------------------------//
-// URecallPhysicsUpdateProcessor
+// URecallPhysicsStartSimulationProcessor
 //----------------------------------------------------------------------//
-URecallPhysicsUpdateProcessor::URecallPhysicsUpdateProcessor()
+URecallPhysicsStartSimulationProcessor::URecallPhysicsStartSimulationProcessor()
 	: EntityQuery(*this)
 {
 	ExecutionFlags = static_cast<int32>(EProcessorExecutionFlags::All);
-	ProcessingPhase = EMassProcessingPhase::DuringPhysics;
-	ExecutionOrder.ExecuteInGroup = Recall::Physics::ProcessorGroupNames::Update;
+	ProcessingPhase = EMassProcessingPhase::StartPhysics;
+	ExecutionOrder.ExecuteInGroup = Recall::Physics::ProcessorGroupNames::StartSimulation;
+	ExecutionOrder.ExecuteAfter.Add(Recall::Physics::ProcessorGroupNames::Initialize);
 }
 
-void URecallPhysicsUpdateProcessor::InitializeInternal(UObject& Owner, const TSharedRef<FMassEntityManager>& InEntityManager)
+void URecallPhysicsStartSimulationProcessor::InitializeInternal(UObject& Owner, const TSharedRef<FMassEntityManager>& InEntityManager)
 {
 	Super::InitializeInternal(Owner, InEntityManager);
 }
 
-bool URecallPhysicsUpdateProcessor::ShouldAllowQueryBasedPruning(const bool bRuntimeMode) const
+bool URecallPhysicsStartSimulationProcessor::ShouldAllowQueryBasedPruning(const bool bRuntimeMode) const
 {
 	return false;
 }
 
-void URecallPhysicsUpdateProcessor::ConfigureQueries(const TSharedRef<FMassEntityManager>& EntityManager)
+void URecallPhysicsStartSimulationProcessor::ConfigureQueries(const TSharedRef<FMassEntityManager>& EntityManager)
 {
 	ProcessorRequirements.AddSubsystemRequirement<URecallPhysicsSubsystem>(EMassFragmentAccess::ReadWrite);
 	
@@ -132,110 +214,68 @@ void URecallPhysicsUpdateProcessor::ConfigureQueries(const TSharedRef<FMassEntit
 #endif // UE_BUILD_DEBUG || UE_BUILD_DEVELOPMENT
 }
 
-void URecallPhysicsUpdateProcessor::Execute(FMassEntityManager& EntityManager, FMassExecutionContext& Context)
+void URecallPhysicsStartSimulationProcessor::Execute(FMassEntityManager& EntityManager, FMassExecutionContext& Context)
 {
-	QUICK_SCOPE_CYCLE_COUNTER(Recall_Physics_Update);
-	TRACE_CPUPROFILER_EVENT_SCOPE_STR(*FString::Printf(TEXT("URecallPhysicsUpdateProcessor::Execute")));
+	QUICK_SCOPE_CYCLE_COUNTER(Recall_Physics_StartSimulation);
+	TRACE_CPUPROFILER_EVENT_SCOPE_STR(TEXT("URecallPhysicsStartSimulationProcessor::Execute"));
 
 #if UE_BUILD_DEBUG || UE_BUILD_DEVELOPMENT
-	static const FString PreUpdateContextString(TEXT("URecallPhysicsUpdateProcessor::Execute (BeforeUpdate)"));
-	ExecuteDumpPhysicsObject(EntityManager, Context, PreUpdateContextString);
+	static const FString PreUpdateContextString(TEXT("URecallPhysicsStartSimulationProcessor::Execute"));
+	ExecuteDumpPhysicsObject(EntityQuery, Context, PreUpdateContextString);
 #endif // UE_BUILD_DEBUG || UE_BUILD_DEVELOPMENT
 
-	// Run our physics simulation.
 	URecallPhysicsSubsystem& PhysicsSystem = Context.GetMutableSubsystemChecked<URecallPhysicsSubsystem>();
 	PhysicsSystem.TickPhysics(Context.GetDeltaTimeSeconds());
+}
+
+//----------------------------------------------------------------------//
+// URecallPhysicsEndSimulationProcessor
+//----------------------------------------------------------------------//
+URecallPhysicsEndSimulationProcessor::URecallPhysicsEndSimulationProcessor()
+	: EntityQuery(*this)
+{
+	ExecutionFlags = static_cast<int32>(EProcessorExecutionFlags::All);
+	ProcessingPhase = EMassProcessingPhase::EndPhysics;
+	ExecutionOrder.ExecuteInGroup = Recall::Physics::ProcessorGroupNames::EndSimulation;
+}
+
+void URecallPhysicsEndSimulationProcessor::InitializeInternal(UObject& Owner, const TSharedRef<FMassEntityManager>& InEntityManager)
+{
+	Super::InitializeInternal(Owner, InEntityManager);
+}
+
+bool URecallPhysicsEndSimulationProcessor::ShouldAllowQueryBasedPruning(const bool bRuntimeMode) const
+{
+	return false;
+}
+
+void URecallPhysicsEndSimulationProcessor::ConfigureQueries(const TSharedRef<FMassEntityManager>& EntityManager)
+{
+	ProcessorRequirements.AddSubsystemRequirement<URecallPhysicsSubsystem>(EMassFragmentAccess::ReadWrite);
 
 #if UE_BUILD_DEBUG || UE_BUILD_DEVELOPMENT
-	static const FString PostUpdateContextString(TEXT("URecallPhysicsUpdateProcessor::Execute (AfterUpdate)"));
-	ExecuteDumpPhysicsObject(EntityManager, Context, PostUpdateContextString);
+	EntityQuery.AddRequirement<FRecallPhysicsBodyFragment>(EMassFragmentAccess::ReadOnly);
+	EntityQuery.AddSubsystemRequirement<URecallPhysicsSubsystem>(EMassFragmentAccess::ReadOnly);
+#endif // UE_BUILD_DEBUG || UE_BUILD_DEVELOPMENT
+}
+
+void URecallPhysicsEndSimulationProcessor::Execute(FMassEntityManager& EntityManager, FMassExecutionContext& Context)
+{
+	QUICK_SCOPE_CYCLE_COUNTER(Recall_Physics_EndSimulation);
+	TRACE_CPUPROFILER_EVENT_SCOPE_STR(TEXT("URecallPhysicsEndSimulationProcessor::Execute"));
+
+	URecallPhysicsSubsystem& PhysicsSystem = Context.GetMutableSubsystemChecked<URecallPhysicsSubsystem>();
+	PhysicsSystem.ForceEndPhysicsSimulation();
+
+#if UE_BUILD_DEBUG || UE_BUILD_DEVELOPMENT
+	static const FString PostUpdateContextString(TEXT("URecallPhysicsEndSimulationProcessor::Execute"));
+	ExecuteDumpPhysicsObject(EntityQuery, Context, PostUpdateContextString);
 #endif // UE_BUILD_DEBUG || UE_BUILD_DEVELOPMENT
 
 #if RECALL_DESYNC_LOG
 	RECALL_DESYNC_LOG_INT(Context.GetWorld(), NumContactEvents, PhysicsSystem.GetNumContactEvents());
 #endif // RECALL_DESYNC_LOG
 }
-
-#if UE_BUILD_DEBUG || UE_BUILD_DEVELOPMENT
-void URecallPhysicsUpdateProcessor::ExecuteDumpPhysicsObject(FMassEntityManager& EntityManager, FMassExecutionContext& Context, const FString& ContextString)
-{
-#if RECALL_DESYNC_LOG
-	EntityQuery.ForEachEntityChunk(Context, ([&ContextString](FMassExecutionContext& Context)
-	{
-		const URecallPhysicsSubsystem& PhysicsSystem = Context.GetSubsystemChecked<URecallPhysicsSubsystem>();
-
-		const TConstArrayView<FRecallPhysicsBodyFragment> BodyList = Context.GetFragmentView<FRecallPhysicsBodyFragment>();
-
-		for (int32 EntityIndex = 0; EntityIndex < Context.GetNumEntities(); EntityIndex++)
-		{
-			const FMassEntityHandle Entity = Context.GetEntity(EntityIndex);
-			const FRecallPhysicsBodyFragment& BodyFragment = BodyList[EntityIndex];
-
-			const TWeakPtr<const FRecallPhysicsBody> PhysicsBody = PhysicsSystem.GetBody(BodyFragment.BodyHandle);
-			if (ensureMsgf(PhysicsBody.IsValid(), TEXT("Body does not exist.")) == false)
-			{
-				continue;
-			}
-			
-			if (PhysicsBody.Pin()->IsEnabled() == false)
-			{
-				continue;
-			}
-
-			FVector Position = FVector::ZeroVector;
-			FQuat Rotation = FQuat::Identity;
-			PhysicsBody.Pin()->GetPositionAndRotation(Position, Rotation);
-
-			const FVector Velocity = PhysicsBody.Pin()->GetLinearVelocity();
-			
-			RECALL_DESYNC_LOG_STR(Context.GetWorld(), PhysicsObject,
-				FString::Printf(TEXT("(%s) %s (%s) Position: %s, Rotation: %s, Velocity: %s"),
-				*ContextString, *Entity.DebugGetDescription(), *BodyFragment.BodyHandle.DebugGetDescription(),
-				*Position.ToString(), *Rotation.ToString(), *Velocity.ToString()));
-		}
-	}));
-#endif // RECALL_DESYNC_LOG
-	
-	if (!Recall::Physics::Utils::ShouldDebugDumpPhysicsObject())
-	{
-		return;
-	}
-
-	const uint32 Frame = Recall::Simulation::Utils::GetFrame(GetWorld());
-
-	UE_LOG(LogRecallPhysics, Log, TEXT("//----------------------------------------------------------------------//"));
-	UE_LOG(LogRecallPhysics, Log, TEXT("//  [%d] %s"), Frame, *ContextString);
-	UE_LOG(LogRecallPhysics, Log, TEXT("//----------------------------------------------------------------------//"));
-
-	EntityQuery.ForEachEntityChunk(Context, ([](FMassExecutionContext& Context)
-	{
-		const URecallPhysicsSubsystem& PhysicsSystem = Context.GetSubsystemChecked<URecallPhysicsSubsystem>();
-
-		const TConstArrayView<FRecallPhysicsBodyFragment> BodyList = Context.GetFragmentView<FRecallPhysicsBodyFragment>();
-
-		for (int32 EntityIndex = 0; EntityIndex < Context.GetNumEntities(); EntityIndex++)
-		{
-			const FRecallPhysicsBodyFragment& BodyFragment = BodyList[EntityIndex];
-
-			const TWeakPtr<const FRecallPhysicsBody> PhysicsBody = PhysicsSystem.GetBody(BodyFragment.BodyHandle);
-			if (ensureMsgf(PhysicsBody.IsValid(), TEXT("Body does not exist.")) == false)
-			{
-				continue;
-			}
-
-			if (PhysicsBody.Pin()->IsEnabled() == false)
-			{
-				continue;
-			}
-
-			const TArray<FRecallPhysicsHitEvent> HitEvents = PhysicsSystem.GetHitEvents(BodyFragment.BodyHandle);
-			UE_LOG(LogRecallPhysics, Log, TEXT("Hit Count: %d"), HitEvents.Num());
-
-			PhysicsBody.Pin()->DumpObject();
-		}
-	}));
-}
-#endif // UE_BUILD_DEBUG || UE_BUILD_DEVELOPMENT
 
 //----------------------------------------------------------------------//
 // URecallPhysicsCopyLocationProcessor
@@ -246,6 +286,8 @@ URecallPhysicsCopyLocationProcessor::URecallPhysicsCopyLocationProcessor()
 	ExecutionFlags = static_cast<int32>(EProcessorExecutionFlags::All);
 	ProcessingPhase = EMassProcessingPhase::EndPhysics;
 	ExecutionOrder.ExecuteInGroup = Recall::Physics::ProcessorGroupNames::CopyLocation;
+	ExecutionOrder.ExecuteAfter.Add(Recall::Physics::ProcessorGroupNames::EndSimulation);
+	ExecutionOrder.ExecuteAfter.Add(Recall::Physics::ProcessorGroupNames::CharacterPostUpdate);
 }
 
 void URecallPhysicsCopyLocationProcessor::InitializeInternal(UObject& Owner, const TSharedRef<FMassEntityManager>& InEntityManager)

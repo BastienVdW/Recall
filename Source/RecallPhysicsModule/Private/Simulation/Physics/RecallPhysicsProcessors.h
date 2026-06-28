@@ -31,11 +31,11 @@ private:
 };
 
 UCLASS()
-class URecallPhysicsUpdateProcessor : public UMassProcessor
+class URecallPhysicsStartSimulationProcessor : public UMassProcessor
 {
 	GENERATED_BODY()
 
-	URecallPhysicsUpdateProcessor();
+	URecallPhysicsStartSimulationProcessor();
 
 public:
 	virtual void InitializeInternal(UObject& Owner, const TSharedRef<FMassEntityManager>& InEntityManager) override final;
@@ -48,10 +48,25 @@ protected:
 private:
 	FMassEntityQuery EntityQuery;
 
-#if UE_BUILD_DEBUG || UE_BUILD_DEVELOPMENT
-	void ExecuteDumpPhysicsObject(FMassEntityManager& EntityManager, FMassExecutionContext& Context, const FString& ContextString);
-#endif // UE_BUILD_DEBUG || UE_BUILD_DEVELOPMENT
+};
 
+UCLASS()
+class URecallPhysicsEndSimulationProcessor : public UMassProcessor
+{
+	GENERATED_BODY()
+
+	URecallPhysicsEndSimulationProcessor();
+
+public:
+	virtual void InitializeInternal(UObject& Owner, const TSharedRef<FMassEntityManager>& InEntityManager) override final;
+	virtual bool ShouldAllowQueryBasedPruning(const bool bRuntimeMode = true) const override final;
+
+protected:
+	virtual void ConfigureQueries(const TSharedRef<FMassEntityManager>& EntityManager) override final;
+	virtual void Execute(FMassEntityManager& EntityManager, FMassExecutionContext& Context) override final;
+
+private:
+	FMassEntityQuery EntityQuery;
 };
 
 UCLASS()

@@ -149,7 +149,7 @@ namespace Recall::Rollback::Utils
 		
 		if (!bIsFrameSynced)
 		{
-			UE_LOG(LogRecallRollback, Warning, TEXT("%hs: DESYNC DETECTED at frame %d! Saved: %s, Current: %s"),
+			UE_LOG(LogRecallRollback, Log, TEXT("%hs: DESYNC DETECTED at frame %d! Saved: %s, Current: %s"),
 				__FUNCTION__, SyncData.Comparator.Frame, 
 				*SyncData.Comparator.ToString(), *CurrentFrameComparator.ToString());
 		}
